@@ -13,23 +13,29 @@ var topLevel = [
     new node('Trello', 'https://www.trello.com'),
     new node('Hmm', 'http://www.grantwinney.com')
 ];
-var all = new node('Ignore', null, topLevel);
 
-populateBookmarks(iterateNodes, all);
+var addAllToSubFolder = true;
+
+populateBookmarks(new node('Ignore', null, topLevel));
 
 
-function populateBookmarks(func, nodes) {
+function populateBookmarks(node) {
     chrome.bookmarks.getChildren("0", function(children) {
         for (var i = 0; i < children.length; i++) {
             if (children[i].title == 'Bookmarks Bar') {
-                func(nodes, children[i].id);
+                if (addAllToSubFolder) {
+                    createPageOrFolder(node, children[i].id);
+                }
+                else {
+                    traverseNodes(node, children[i].id);
+                }
                 break;
             }
         }
     });
 }
 
-function iterateNodes(parentNode, parentId) {
+function traverseNodes(parentNode, parentId) {
     for (var i = 0; i < parentNode.nodes.length; i++) {
         createPageOrFolder(parentNode.nodes[i], parentId);
     }
@@ -42,7 +48,7 @@ function createPageOrFolder(node, parentId) {
                             function(newPageOrFolder) {
                                 writeLogMessage(newPageOrFolder, parentId);
                                 if (node.isFolder) {
-                                    iterateNodes(node, newPageOrFolder.id)
+                                    traverseNodes(node, newPageOrFolder.id)
                                 }
                             });
 }
