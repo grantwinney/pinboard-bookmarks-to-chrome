@@ -81,9 +81,15 @@ function getUserApiToken() {
 function getAllTags() {
     var client = openApiRequest('/tags/get');
     client.onload = function(e) {
-        // var img = document.createElement('img');
-        // img.src = window.URL.createObjectURL(this.response);
-        // document.body.appendChild(img);
+        JSON.parse(client.responseText, (key, value) =>
+        {
+            if (key != '') {
+                var element = document.createElement('span');
+                element.textContent = key;
+                element.classList.add("tag");
+                document.body.appendChild(element);
+            }
+        });
         writeApiRequestResult(client, '/user/api_token');
     };
     client.send();
@@ -96,9 +102,7 @@ function openApiRequest(api_method) {
 }
 
 function writeApiRequestResult(client, api_method) {
-    if (client.status == 200)
-        console.info("The request succeeded!\n\nThe response representation was:\n\n" + client.responseText);
-    else
+    if (client.status != 200)
         console.error('Call to ' + api_method + ' failed with response: ' + client.status + ' ' + client.statusText);
 }
 
@@ -121,3 +125,11 @@ function getValue(key) {
 function clearStorage() {
     chrome.storage.sync.clear();
 }
+
+/*********************************************
+ Run the script
+*********************************************/
+
+window.addEventListener("load", function load(event){
+    getAllTags();
+});
