@@ -181,9 +181,10 @@ window.addEventListener('load', function load(event){
                       ]
                     },
                     { "text" : "Technical", "state" : { "opened" : true }, "children" : [
+                        { "text" : "windows", "type" : "file" },
+                        { "text" : "aaa", "type" : "file" },
                         { "text" : "Snagit", "type" : "file" },
-                        { "text" : "visual_studio", "type" : "file" },
-                        { "text" : "windows", "type" : "file" }
+                        { "text" : "visual_studio", "type" : "file" }
                     ]},
                   ]
                 }
@@ -208,7 +209,7 @@ window.addEventListener('load', function load(event){
             }
         },
         "plugins" : [
-            "contextmenu", "dnd", "search",
+            "contextmenu", "dnd", "search", "sort",
             "state", "types", "wholerow"
         ]
     });
