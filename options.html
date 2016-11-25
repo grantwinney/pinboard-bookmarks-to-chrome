@@ -2,39 +2,38 @@
     <head>
         <title>Options</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" type="text/css" href="styles/options.css" />
-        <script type="text/javascript" src="scripts/jquery-3.1.1.js"></script>
-        <script type="text/javascript" src="scripts/options.js"></script>
+        <link rel="stylesheet" href="styles/options.css" />
+        <link rel="stylesheet" href="scripts/jstree/themes/default/style.css" />
+        <script src="scripts/jquery-3.1.1.js"></script>
+        <script src="scripts/options.js"></script>
+        <script src="scripts/jstree/jstree.js"></script>
+        <script src="scripts/jstree_actions.js"></script>
     </head>
     <body>
-        <h1 id="optionTitle">Options - Pinboard Booksmarks to Chrome</h1>
-        <table style="text-align: left;">
+        <h1>Pinboard Booksmarks to Chrome</h1>
+        <h2>Select Pinboard Tags for One-Way Sync</h1>
+        <table>
             <tr>
-                <th>
-                    Pinboard Tags
-                </th>
-                <td>
-                    Other important stuff will go here. Seriously.
-                    <!-- <select id="selectBehave">
-                            <option id="optMouseOver">Mouse over</option>
-                            <option id="optDblClick">Double Click</option>
-                            <option id="optFocus">On Focus</option>
-    						<option id="optCtrl">Press Ctrl Key</option>
-                        </select>
-                    <div id="divWait" style="display: inline">
-                        <label id="labelWait">Wait:</label>
-                        <input id="inputWait" type="number" min="0" value="500" style="width: 50px;">ms
-                    </div> -->
+                <td style="vertical-align:top">
+                    <div class="col-md-4 col-sm-8 col-xs-8">
+						<button id="create_button" class="btn button_create_folder btn-sm">
+                            <i class="glyphicon glyphicon-asterisk"></i>
+                            Create
+                        </button>
+						<button id="rename_button" class="btn button_edit_folder btn-sm" >
+                            <i class="glyphicon glyphicon-pencil"></i>
+                            Rename
+                        </button>
+						<button id="delete_button" class="btn button_delete_folder btn-sm">
+                            <i class="glyphicon glyphicon-remove"></i>
+                            Delete
+                        </button>
+					</div>
+                    <div id="tagTree"></div>
+                </td>
+                <td id="tagContainer">
                 </td>
             </tr>
-            <!-- <tr>
-                <td>
-                    <label id="labelPreview">Nothing to see...</label>
-                </td>
-                <td>
-                    <input id="passwordTest" size="25" value="Test" style="width: 120px;">
-                </td>
-            </tr> -->
         </table>
     </body>
 </html>
