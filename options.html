@@ -10,28 +10,19 @@
         <script src="scripts/jstree_actions.js"></script>
     </head>
     <body>
-        <h1 style="text-align:center">Pinboard Booksmarks to Chrome</h1>
-        <h2 style="text-align:center">Select Pinboard Tags for One-Way Sync</h1>
-        <table>
+        <table id="main">
             <tr>
-                <td style="vertical-align:top">
-                    <div class="col-md-4 col-sm-8 col-xs-8">
-						<button id="create_button" class="btn button_create_folder btn-sm">
-                            <i class="glyphicon glyphicon-asterisk"></i>
-                            Create
-                        </button>
-						<button id="rename_button" class="btn button_edit_folder btn-sm" >
-                            <i class="glyphicon glyphicon-pencil"></i>
-                            Rename
-                        </button>
-						<button id="delete_button" class="btn button_delete_folder btn-sm">
-                            <i class="glyphicon glyphicon-remove"></i>
-                            Delete
-                        </button>
-					</div>
+                <td style="width:300px">
                     <div id="tagTree"></div>
                 </td>
-                <td id="tagContainer">
+                <td style="position:absolute; left:300px; padding: 0 10">
+                    <h1>Pinboard Bookmarks to Chrome</h1>
+                    <h3>Select Pinboard Tags for One-Way Sync</h3>
+                    <p style="line-height:1.5">Select tags to generate bookmarks from.
+                       Organize them on the left (right-click the tree to add or rename folders,
+                       and to delete folders and bookmarks).
+                       When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
+                    <div id="tagContainer" style="text-align:center"></div>
                 </td>
             </tr>
         </table>

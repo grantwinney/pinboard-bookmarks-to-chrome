@@ -1,55 +1,39 @@
-/*body {
+body {
+     margin:0;
+     padding:0;
+}
+
+h1, h3 {
     text-align: center;
-}*/
-
-table {
-    margin-left: auto;
-    margin-right: auto;
 }
 
-.tag:hover {
-  color: black;
-  background-color: #ff0;
-  cursor: hand;
+td {
+    vertical-align: top;
 }
 
-.tag {
-    border: 1px solid black;
-    padding: 4px;
-    margin: 3px;
-    clear: both;
-    display: inline-block;
-    line-height: 1;
-    border-radius: 5px;
-    font-size: smaller;
-    color: #000;
-    text-decoration: none;
-    background-color: #def;
-}
-
-.button_create_folder {
+#create_button {
     color: #fff;
     background-color: #5cb85c;
     border-color: #4cae4c;
 }
 
-.button_edit_folder {
+#rename_button {
     color: #fff;
     background-color: #f0ad4e;
     border-color: #eea236;
 }
 
-.button_delete_folder {
+#delete_button {
     color: #fff;
     background-color: #d9534f;
     border-color: #d43f3a;
 }
 
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 3px;
+#tagTree {
+     height: 100vh;
+     width: 300px;
+     overflow: auto;
+     position:fixed;
 }
 
 .btn {
@@ -63,6 +47,25 @@ table {
     white-space: nowrap;
     vertical-align: middle;
     cursor: pointer;
-    border: 1px solid transparent;
+    /*border: 1px solid transparent;*/
     border-radius: 4px;
+    outline-width: thin;
+}
+
+.tag {
+    border: 1px solid black;
+    padding: 4px;
+    margin: 3px;
+    display: inline-block;
+    border-radius: 5px;
+    font-size: smaller;
+    color: #000;
+    text-decoration: none;
+    background-color: #def;
+    outline-width: thin;
+}
+
+.tag:hover {
+  background-color: #ff0;
+  cursor: hand;
 }
