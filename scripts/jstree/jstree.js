@@ -5835,60 +5835,61 @@
 						}
 					}
 				},
-				// "ccp" : {
-				// 	"separator_before"	: true,
-				// 	"icon"				: false,
-				// 	"separator_after"	: false,
-				// 	"label"				: "Edit",
-				// 	"action"			: false,
-				// 	"submenu" : {
-				// 		"cut" : {
-				// 			"separator_before"	: false,
-				// 			"separator_after"	: false,
-				// 			"label"				: "Cut",
-				// 			"action"			: function (data) {
-				// 				var inst = $.jstree.reference(data.reference),
-				// 					obj = inst.get_node(data.reference);
-				// 				if(inst.is_selected(obj)) {
-				// 					inst.cut(inst.get_top_selected());
-				// 				}
-				// 				else {
-				// 					inst.cut(obj);
-				// 				}
-				// 			}
-				// 		},
-				// 		"copy" : {
-				// 			"separator_before"	: false,
-				// 			"icon"				: false,
-				// 			"separator_after"	: false,
-				// 			"label"				: "Copy",
-				// 			"action"			: function (data) {
-				// 				var inst = $.jstree.reference(data.reference),
-				// 					obj = inst.get_node(data.reference);
-				// 				if(inst.is_selected(obj)) {
-				// 					inst.copy(inst.get_top_selected());
-				// 				}
-				// 				else {
-				// 					inst.copy(obj);
-				// 				}
-				// 			}
-				// 		},
-				// 		"paste" : {
-				// 			"separator_before"	: false,
-				// 			"icon"				: false,
-				// 			"_disabled"			: function (data) {
-				// 				return !$.jstree.reference(data.reference).can_paste();
-				// 			},
-				// 			"separator_after"	: false,
-				// 			"label"				: "Paste",
-				// 			"action"			: function (data) {
-				// 				var inst = $.jstree.reference(data.reference),
-				// 					obj = inst.get_node(data.reference);
-				// 				inst.paste(obj);
-				// 			}
-				// 		}
-				// 	}
-				// }
+				"ccp" : {
+					"separator_before"	: true,
+					"icon"				: false,
+					"separator_after"	: false,
+					"label"				: "Edit",
+					"_disabled"			: o.id == 'node_0',
+					"action"			: false,
+					"submenu" : {
+						"cut" : {
+							"separator_before"	: false,
+							"separator_after"	: false,
+							"label"				: "Cut",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								if(inst.is_selected(obj)) {
+									inst.cut(inst.get_top_selected());
+								}
+								else {
+									inst.cut(obj);
+								}
+							}
+						},
+						"copy" : {
+							"separator_before"	: false,
+							"icon"				: false,
+							"separator_after"	: false,
+							"label"				: "Copy",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								if(inst.is_selected(obj)) {
+									inst.copy(inst.get_top_selected());
+								}
+								else {
+									inst.copy(obj);
+								}
+							}
+						},
+						"paste" : {
+							"separator_before"	: false,
+							"icon"				: false,
+							"_disabled"			: function (data) {
+								return !$.jstree.reference(data.reference).can_paste();
+							},
+							"separator_after"	: false,
+							"label"				: "Paste",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								inst.paste(obj);
+							}
+						}
+					}
+				}
 			};
 		}
 	};
@@ -7560,7 +7561,9 @@
 	 * @plugin sort
 	 */
 	$.jstree.defaults.sort = function (a, b) {
-		return this.get_type(a) === this.get_type(b) ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1) : this.get_type(a) >= this.get_type(b);
+		return this.get_type(a) === this.get_type(b)
+            ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1)
+            : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
     	//return this.get_text(a) > this.get_text(b) ? 1 : -1;
 	};
 	$.jstree.plugins.sort = function (options, parent) {
