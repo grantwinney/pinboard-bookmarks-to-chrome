@@ -57,54 +57,45 @@ function writePageCreationMessage(node, parentId) {
 
 API_TOKEN = 'grant:???';
 
-function getUserApiToken() {
-    var client = new XMLHttpRequest();
-    client.open("GET", 'https://api.pinboard.in/v1/user/api_token?format=json&auth_token=' + API_TOKEN);
-    client.onload = function(e) {
-        writeApiRequestResult(client, '/user/api_token');
-    };
-    client.send();
-}
-
 function getAllTags() {
     var client = new XMLHttpRequest();
     client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + API_TOKEN);
     client.onload = function(e) {
+        var tagContainer = document.getElementById('tagContainer');
         JSON.parse(client.responseText, (tagName, tagCount) =>
         {
             if (tagName != '') {
-                var container = document.getElementById('tagContainer');
-                var element = document.createElement('a');
+                var element = document.createElement('button');
                 element.textContent = tagName;
                 element.addEventListener('click', function() {
                     jstree_node_create(tagName);
                 });
                 element.classList.add("tag");
-                container.appendChild(element);
+                tagContainer.appendChild(element);
+            }
+        });
+        writeApiRequestResult(client, '/user/api_token');
+    };
+    client.send();  // net::ERR_INTERNET_DISCONNECTED
+}
+
+function getAllPosts() {
+    var client = new XMLHttpRequest();
+    client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + API_TOKEN);
+    client.onload = function(e) {
+        JSON.parse(client.responseText, (key, value) =>
+        {
+            if (key != '') {
+                var element = document.createElement('span');
+                element.textContent = key;
+                element.classList.add("tag");
+                document.body.appendChild(element);
             }
         });
         writeApiRequestResult(client, '/user/api_token');
     };
     client.send();
 }
-
-// function getAllPosts() {
-//     var client = new XMLHttpRequest();
-//     client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + API_TOKEN);
-//     client.onload = function(e) {
-//         JSON.parse(client.responseText, (key, value) =>
-//         {
-//             if (key != '') {
-//                 var element = document.createElement('span');
-//                 element.textContent = key;
-//                 element.classList.add("tag");
-//                 document.body.appendChild(element);
-//             }
-//         });
-//         writeApiRequestResult(client, '/user/api_token');
-//     };
-//     client.send();
-// }
 
 function writeApiRequestResult(client, api_method) {
     if (client.status != 200)
@@ -114,7 +105,6 @@ function writeApiRequestResult(client, api_method) {
 /*********************************************
  Storage accessors
 *********************************************/
-
 
 function storeValue(key, value) {
     chrome.storage.sync.set({key: value}, function() {
@@ -145,19 +135,12 @@ function getLocalValue(key) {
 *********************************************/
 
 window.addEventListener('load', function load(event){
-    var createButton = document.getElementById('create_button');
-    var renameButton = document.getElementById('rename_button');
-    var deleteButton = document.getElementById('delete_button');
-
-    createButton.addEventListener('click', function() { jstree_node_create(); });
-    renameButton.addEventListener('click', function() { jstree_node_rename(); });
-    deleteButton.addEventListener('click', function() { jstree_node_delete(); });
-
     $('#tagTree').jstree({
         "core" : {
-            "animation" : 0,
+            "animation" : 100,
+            "themes" : { "stripes" : false },
+            "multiple" : false,
             "check_callback" : true,
-            "themes" : { "stripes" : true },
             // 'data' : {
             //   'url' : function (node) {
             //     return node.id === '#' ?
@@ -193,7 +176,6 @@ window.addEventListener('load', function load(event){
         "types" : {
             "#" : {
                 "max_children" : 1,
-                "max_depth" : 4,
                 "valid_children" : ["root"]
             },
             "root" : {
@@ -216,19 +198,19 @@ window.addEventListener('load', function load(event){
 
     getAllTags();
 });
-
-var googBookmarks = [
-    new node('Calendar', 'http://calendar.google.com'),
-    new node('Email', 'https://www.gmail.com'),
-    new node('Search', 'http://www.google.com')
-];
-var techBookmarks = [
-    new node('Microsoft', 'http://www.microsoft.com'),
-    new node('Google', null, googBookmarks),
-    new node('Mozilla', 'http://developer.mozilla.org')
-];
-var topLevel = [
-    new node('Tech', null, techBookmarks),
-    new node('Trello', 'https://www.trello.com'),
-    new node('Hmm', 'http://www.grantwinney.com')
-];
+//
+// var googBookmarks = [
+//     new node('Calendar', 'http://calendar.google.com'),
+//     new node('Email', 'https://www.gmail.com'),
+//     new node('Search', 'http://www.google.com')
+// ];
+// var techBookmarks = [
+//     new node('Microsoft', 'http://www.microsoft.com'),
+//     new node('Google', null, googBookmarks),
+//     new node('Mozilla', 'http://developer.mozilla.org')
+// ];
+// var topLevel = [
+//     new node('Tech', null, techBookmarks),
+//     new node('Trello', 'https://www.trello.com'),
+//     new node('Hmm', 'http://www.grantwinney.com')
+// ];
