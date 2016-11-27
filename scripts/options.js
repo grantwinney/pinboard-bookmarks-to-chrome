@@ -55,51 +55,69 @@ function writePageCreationMessage(node, parentId) {
  API calls to Pinboard
 *********************************************/
 
-API_TOKEN = 'grant:???';
-
 function getAllTags() {
-    var client = new XMLHttpRequest();
-    client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + API_TOKEN);
-    client.onload = function(e) {
-        var tagContainer = document.getElementById('tagContainer');
-        JSON.parse(client.responseText, (tagName, tagCount) =>
-        {
-            if (tagName != '') {
-                var element = document.createElement('button');
-                element.textContent = tagName;
-                element.addEventListener('click', function() {
-                    jstree_node_create(tagName);
+    chrome.storage.local.get('api_token', function(result) {
+        if (result != undefined) {
+            var client = new XMLHttpRequest();
+            client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + result.api_token);
+            client.onload = function(e) {
+                var tagContainer = document.getElementById('tagContainer');
+                JSON.parse(client.responseText, (tagName, tagCount) =>
+                {
+                    if (tagName != '') {
+                        var element = document.createElement('button');
+                        element.textContent = tagName;
+                        element.addEventListener('click', function() {
+                            jstree_node_create(tagName);
+                        });
+                        element.classList.add("tag");
+                        tagContainer.appendChild(element);
+                    }
                 });
-                element.classList.add("tag");
-                tagContainer.appendChild(element);
-            }
-        });
-        writeApiRequestResult(client, '/user/api_token');
-    };
-    client.send();  // net::ERR_INTERNET_DISCONNECTED
+                logApiResult(client, '/tags/get');
+            };
+            client.send();
+        }
+    });
 }
 
 function getAllPosts() {
+    chrome.storage.local.get('api_token', function(result) {
+        if (result != undefined) {
+            var client = new XMLHttpRequest();
+            client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + result.api_token);
+            client.onload = function(e) {
+                JSON.parse(client.responseText, (key, value) =>
+                {
+                    if (key != '') {
+                        var element = document.createElement('span');
+                        element.textContent = key;
+                        element.classList.add("tag");
+                        document.body.appendChild(element);
+                    }
+                });
+                logApiResult(client, '/posts/all');
+            };
+            client.send();
+        }
+    });
+}
+
+function testUserEnteredApiToken(apiToken, saveToken = true) {
     var client = new XMLHttpRequest();
-    client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + API_TOKEN);
+    client.open("GET", 'https://api.pinboard.in/v1/user/api_token?format=json&auth_token=' + apiToken);
     client.onload = function(e) {
-        JSON.parse(client.responseText, (key, value) =>
-        {
-            if (key != '') {
-                var element = document.createElement('span');
-                element.textContent = key;
-                element.classList.add("tag");
-                document.body.appendChild(element);
-            }
-        });
-        writeApiRequestResult(client, '/user/api_token');
+        setApiTokenValidityIcon(client.status == 200);
+        if (client.status == 200 && saveToken) {
+            chrome.storage.local.set({'api_token': apiToken});
+        }
     };
     client.send();
 }
 
-function writeApiRequestResult(client, api_method) {
+function logApiResult(client, apiMethod) {
     if (client.status != 200)
-        console.error('Call to ' + api_method + ' failed with response: ' + client.status + ' ' + client.statusText);
+        console.error('Call to ' + apiMethod + ' failed with response: ' + client.status + ' ' + client.statusText);
 }
 
 /*********************************************
@@ -118,23 +136,39 @@ function getValue(key) {
     });
 }
 
-function storeLocalValue(key, value) {
-    chrome.storage.local.set({key: value}, function() {
-        console.info("Stored key '" + key + "' with value '" + value + "' locally.");
-    });
-}
-
-function getLocalValue(key) {
-    chrome.storage.local.get(key, function() {
-        console.info("Retrieved key '" + key + "' from local storage.'")
-    });
-}
-
 /*********************************************
  Run the script
 *********************************************/
 
-window.addEventListener('load', function load(event){
+window.addEventListener('load', function load(event) {
+    loadApiTokenFromStorageAndVerify();
+    registerCheckApiTokenButton();
+    setupTagTree();
+    getAllTags();
+});
+
+function loadApiTokenFromStorageAndVerify() {
+    chrome.storage.local.get('api_token', function(result) {
+        var apiToken = document.getElementById('apiToken');
+        if (result != undefined) {
+            apiToken.value = result.api_token;
+            testUserEnteredApiToken(result.api_token, false);
+        }
+        else {
+            setApiTokenValidityIcon(false);
+        }
+    });
+}
+
+function registerCheckApiTokenButton() {
+    var verifyApiToken = document.getElementById('verifyApiToken');
+    verifyApiToken.addEventListener('click', function() {
+        var apiToken = document.getElementById('apiToken');
+        testUserEnteredApiToken(apiToken.value);
+    });
+}
+
+function setupTagTree() {
     $('#tagTree').jstree({
         "core" : {
             "animation" : 100,
@@ -195,9 +229,20 @@ window.addEventListener('load', function load(event){
             "state", "types", "wholerow"
         ]
     });
+}
 
-    getAllTags();
-});
+function setApiTokenValidityIcon(isValid) {
+    var ind = document.getElementById('apiTokenStatusIndicator');
+    if (isValid) {
+        ind.src = 'images/check.png';
+        ind.title = 'Valid Auth Token';
+    }
+    else {
+        ind.src = 'images/wrong.png';
+        ind.title = 'Invalid Auth Token';
+    }
+}
+
 //
 // var googBookmarks = [
 //     new node('Calendar', 'http://calendar.google.com'),
