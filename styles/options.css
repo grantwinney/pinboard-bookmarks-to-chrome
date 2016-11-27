@@ -3,12 +3,28 @@ body {
      padding:0;
 }
 
-h1, h3 {
+h1 {
     text-align: center;
+    line-height: .5
+}
+
+h3 {
+    text-align: center;
+    line-height: 1
 }
 
 td {
     vertical-align: top;
+}
+
+a, a:visited {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: red;
+    text-decoration: underline;
 }
 
 #create_button {
@@ -33,7 +49,39 @@ td {
      height: 100vh;
      width: 300px;
      overflow: auto;
-     position:fixed;
+     position: fixed;
+}
+
+#apiToken {
+    width: 225px;
+}
+
+#verifyApiToken {
+    outline-width: thin;
+    vertical-align: text-bottom;
+}
+
+#apiTokenStatusIndicator {
+    vertical-align: text-bottom;
+}
+
+#apiTokenStatus {
+    vertical-align: top;
+}
+
+#apiPanel {
+    font-size: small;
+    text-align: center;
+}
+
+#leftPanel {
+    width: 300px;
+}
+
+#rightPanel {
+    position: absolute;
+    left: 300px;
+    padding: 0 10;
 }
 
 .btn {
@@ -66,6 +114,16 @@ td {
 }
 
 .tag:hover {
-  background-color: #ff0;
-  cursor: hand;
+    background-color: #ff0;
+    cursor: hand;
+}
+
+.notice {
+    font-size: x-small;
+    font-style: italic;
+    text-align: center;
+}
+
+.instructions {
+    line-height: 1.5;
 }
