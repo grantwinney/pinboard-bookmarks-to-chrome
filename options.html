@@ -12,16 +12,26 @@
     <body>
         <table id="main">
             <tr>
-                <td style="width:300px">
+                <td id="leftPanel">
                     <div id="tagTree"></div>
                 </td>
-                <td style="position:absolute; left:300px; padding: 0 10">
+                <td id="rightPanel">
                     <h1>Pinboard Bookmarks to Chrome</h1>
                     <h3>Select Pinboard Tags for One-Way Sync</h3>
-                    <p style="line-height:1.5">Select tags to generate bookmarks from.
-                       Organize them on the left (right-click the tree to add or rename folders,
-                       and to delete folders and bookmarks).
-                       When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
+                    <p id="apiPanel">Enter your <a href="https://pinboard.in/settings/password">API Token</a>:
+                        <input id="apiToken" type="text">
+                        <input id="verifyApiToken" type="image" src="images/refresh.png" title="Verify Token">
+                        <img id="apiTokenStatusIndicator" src="images/wrong.png" />
+                    </p>
+                    <p class="notice">
+                        If you don't see your tags below, check your Internet connection,
+                        <a href="https://pinboard.in/settings/password">verify your API key</a>,
+                        and <a href="https://github.com/grantwinney/pinboard-bookmarks-to-chrome/wiki">check the docs</a>.
+                    <p class="instructions">
+                        Select tags to generate bookmarks from.
+                        Organize them on the left (right-click the tree to add or rename folders,
+                        and to delete folders and bookmarks).
+                        When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
                     <div id="tagContainer" style="text-align:center"></div>
                 </td>
             </tr>
