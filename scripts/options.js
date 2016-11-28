@@ -51,6 +51,11 @@ function writePageCreationMessage(node, parentId) {
     console.info("Added page or folder '" + node.title + "' (" + node.id + ") to parent folder id " + parentId + ".");
 }
 
+
+
+
+
+
 /*********************************************
  API calls to Pinboard
 *********************************************/
@@ -103,13 +108,16 @@ function getAllPosts() {
     });
 }
 
-function testUserEnteredApiToken(apiToken, saveToken = true) {
+function testUserEnteredApiToken(apiToken) {
     var client = new XMLHttpRequest();
     client.open("GET", 'https://api.pinboard.in/v1/user/api_token?format=json&auth_token=' + apiToken);
     client.onload = function(e) {
         setApiTokenValidityIcon(client.status == 200);
-        if (client.status == 200 && saveToken) {
+        if (client.status == 200) {
             chrome.storage.local.set({'api_token': apiToken});
+            var tagContainer = document.getElementById('tagContainer');
+            if (!tagContainer.hasChildNodes())
+                getAllTags();
         }
     };
     client.send();
@@ -143,7 +151,8 @@ function getValue(key) {
 window.addEventListener('load', function load(event) {
     loadApiTokenFromStorageAndVerify();
     registerCheckApiTokenButton();
-    setupTagTree();
+    registerGenerateBookmarksButton();
+    loadTagTreeFromSyncStorage();
     getAllTags();
 });
 
@@ -152,7 +161,7 @@ function loadApiTokenFromStorageAndVerify() {
         var apiToken = document.getElementById('apiToken');
         if (result != undefined) {
             apiToken.value = result.api_token;
-            testUserEnteredApiToken(result.api_token, false);
+            testUserEnteredApiToken(result.api_token);
         }
         else {
             setApiTokenValidityIcon(false);
@@ -168,66 +177,52 @@ function registerCheckApiTokenButton() {
     });
 }
 
-function setupTagTree() {
-    $('#tagTree').jstree({
-        "core" : {
-            "animation" : 100,
-            "themes" : { "stripes" : false },
-            "multiple" : false,
-            "check_callback" : true,
-            // 'data' : {
-            //   'url' : function (node) {
-            //     return node.id === '#' ?
-            //       'ajax_demo_roots.json' : 'ajax_demo_children.json';
-            //   },
-            //   'data' : function (node) {
-            //     return { 'id' : node.id };
-            //   }
-            // }
-            'data' : [
-                { "text" : "Pinboard", "id" : "node_0", "state" : { "opened" : true }, "children" : [
-                    { "text" : "Hobbies", "type" : "file" },
-                    { "text" : "guide", "type" : "file" },
-                    { "text" : "Records", "state" : { "opened" : true }, "children" : [
-                        { "text" : "Work", "state" : { "opened" : true }, "children" : [
-                            { "text" : "VHT", "type" : "file" },
-                            { "text" : "Snagit", "type" : "file" }
-                        ]},
-                        { "text" : "Medical", "type" : "file" },
-                        { "text" : "finance", "type" : "file"}
-                      ]
-                    },
-                    { "text" : "Technical", "state" : { "opened" : true }, "children" : [
-                        { "text" : "windows", "type" : "file" },
-                        { "text" : "aaa", "type" : "file" },
-                        { "text" : "Snagit", "type" : "file" },
-                        { "text" : "visual_studio", "type" : "file" }
-                    ]},
-                  ]
+function registerGenerateBookmarksButton() {
+    var generateBookmarks = document.getElementById('generateBookmarks');
+    generateBookmarks.addEventListener('click', function() {
+        chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
+            //TODO: Generate bookmarks
+        });
+    });
+}
+
+function loadTagTreeFromSyncStorage() {
+    chrome.storage.sync.get('selected_tags', function(result) {
+        if (result != undefined && result.selected_tags != undefined)
+            data = result.selected_tags;
+        else
+            data = [ { "id" : ROOT_NODE_ID, "text" : "Pinboard", "icon" : "images/root.gif" } ];
+
+        $('#tagTree').jstree({
+            'core' : {
+                'animation' : 100,
+                'themes' : { 'stripes' : false },
+                'multiple' : false,
+                'check_callback' : true,
+                'data' : data,
+            },
+            'types' : {
+                '#' : {
+                    'max_children' : 1,
+                    'valid_children' : ['root']
+                },
+                'root' : {
+                    'icon' : '../../images/tree_icon.png',
+                    'valid_children' : ['default']
+                },
+                'default' : {
+                    'valid_children' : ['default', 'file']
+                },
+                'file' : {
+                    'icon' : '../../images/bookmark_icon.png',
+                    'valid_children' : []
                 }
+            },
+            'plugins' : [
+                'contextmenu', 'dnd', 'search', 'sort',
+                'state', 'types', 'wholerow'
             ]
-        },
-        "types" : {
-            "#" : {
-                "max_children" : 1,
-                "valid_children" : ["root"]
-            },
-            "root" : {
-                "icon" : "../../images/tree_icon.png",
-                "valid_children" : ["default"]
-            },
-            "default" : {
-                "valid_children" : ["default", "file"]
-            },
-            "file" : {
-                "icon" : "../../images/bookmark_icon.png",
-                "valid_children" : []
-            }
-        },
-        "plugins" : [
-            "contextmenu", "dnd", "search", "sort",
-            "state", "types", "wholerow"
-        ]
+        });
     });
 }
 
