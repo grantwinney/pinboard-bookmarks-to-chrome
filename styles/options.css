@@ -84,6 +84,16 @@ a:hover {
     padding: 0 10;
 }
 
+#generateBookmarks {
+    font-weight: bold;
+    padding: 10;
+    font-size: normal;
+    border-radius: 4px;
+    outline-width: thin;
+    background-color: white;
+    color: black;
+}
+
 .btn {
     display: inline-block;
     padding: 3px;
