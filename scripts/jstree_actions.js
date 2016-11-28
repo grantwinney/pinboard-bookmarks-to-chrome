@@ -1,7 +1,7 @@
 ROOT_NODE_ID = 'node_0';
 
 function jstree_node_create(nodeName = '') {
-	var tagTree = $('#tagTree').jstree(true);
+	var tagTree = $('#tagTree').jstree();
     var selectedNodeIds = tagTree.get_selected();
     var firstNodeId = selectedNodeIds.length ? selectedNodeIds[0] : ROOT_NODE_ID;
 
@@ -23,7 +23,7 @@ function jstree_node_create(nodeName = '') {
 };
 
 function jstree_node_rename() {
-	var tagTree = $('#tagTree').jstree(true);
+	var tagTree = $('#tagTree').jstree();
     var selectedNodeIds = tagTree.get_selected();
 	if (!selectedNodeIds.length) {
         return false;
@@ -39,7 +39,7 @@ function jstree_node_rename() {
 };
 
 function jstree_node_delete() {
-	var tagTree = $('#tagTree').jstree(true);
+	var tagTree = $('#tagTree').jstree();
     var selectedNodeIds = tagTree.get_selected();
 	if (!selectedNodeIds.length) {
         return false;
