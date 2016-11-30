@@ -87,7 +87,7 @@ function getAllPostsAndGenerateBookmarks() {
     chrome.storage.local.get('all_bookmarks_last_updated', function(result) {
         if (result != undefined
             && result.all_bookmarks_last_updated != undefined
-            && ((new Date() - result.all_bookmarks_last_updated) / 1000) <= 300) {
+            && ((new Date() - Date.parse(result.all_bookmarks_last_updated)) / 1000) <= 300) {
             getAllPostsFromLocalStorage();
         } else {
             getAllPostsFromPinboard();
@@ -98,7 +98,6 @@ function getAllPostsAndGenerateBookmarks() {
 function getAllPostsFromLocalStorage() {
     chrome.storage.local.get('all_bookmarks', function(result) {
         if (result != undefined && result.all_bookmarks != undefined) {
-            console.log('local pull');
             populateBookmarks(result.all_bookmarks);
         } else {
             getAllPostsFromPinboard();
@@ -107,15 +106,14 @@ function getAllPostsFromLocalStorage() {
 }
 
 function getAllPostsFromPinboard() {
-    console.log('remote pull');
     chrome.storage.local.get('api_token', function(result) {
         if (result != undefined && result.api_token != undefined) {
             var client = new XMLHttpRequest();
             client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + result.api_token);
             client.onload = function(e) {
                 if (client.status == 200) {
-                    rawdata = client.responseText;
-                    var data = []
+                    rawdata = JSON.parse(client.responseText);
+                    var data = [];
                     rawdata.forEach(function(url) {
                         var o = new Object();
                         o.href = url['href'];
@@ -123,7 +121,7 @@ function getAllPostsFromPinboard() {
                         o.tags = url['tags'];
                         data.push(o);
                     });
-                    chrome.storage.local.set({'all_bookmarks_last_updated': new Date()});
+                    chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()});
                     chrome.storage.local.set({'all_bookmarks': data});
                     populateBookmarks(data);
                 } else {
