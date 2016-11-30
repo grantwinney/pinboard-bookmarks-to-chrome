@@ -5,55 +5,52 @@ var ADD_ALL_TO_SUBFOLDER = true;
  Create new bookmarks in the Bookmarks Bar
 *********************************************/
 
-function populateBookmarks(node) {
+function populateBookmarks(urls) {
     chrome.bookmarks.getChildren("0", function(children) {
         for (var i = 0; i < children.length; i++) {
             if (children[i].title == 'Bookmarks Bar') {
-                if (ADD_ALL_TO_SUBFOLDER) {
-                    createPageOrFolder(node, children[i].id);
-                }
-                else {
-                    traverseNodes(node, children[i].id);
-                }
+
+                urls.forEach(function(url) {
+                    console.log('Creating bookmark \'' + url['description'] + '\' to \'' + url['href'] + '\' with tags \'' + url['tags'] + '\'');
+                });
+
+                // if (ADD_ALL_TO_SUBFOLDER) {
+                //     createPageOrFolder(node, children[i].id);
+                // } else {
+                //     traverseNodes(node, children[i].id);
+                // }
                 break;
+            } else {
+                console.error('Cannot add bookmarks. Unable to find the \'Bookmarks Bar\'.')
             }
         }
     });
 }
 
-function traverseNodes(parentNode, parentId) {
-    for (var i = 0; i < parentNode.nodes.length; i++) {
-        createPageOrFolder(parentNode.nodes[i], parentId);
-    }
-}
+// function traverseNodes(parentNode, parentId) {
+//     for (var i = 0; i < parentNode.nodes.length; i++) {
+//         createPageOrFolder(parentNode.nodes[i], parentId);
+//     }
+// }
 
-function createPageOrFolder(node, parentId) {
-    chrome.bookmarks.create({'parentId': parentId,
-                             'title': node.title,
-                             'url': node.url},
-                            function(newPageOrFolder) {
-                                writePageCreationMessage(newPageOrFolder, parentId);
-                                if (node.isFolder) {
-                                    traverseNodes(node, newPageOrFolder.id)
-                                }
-                            });
-}
+// function createPageOrFolder(node, parentId) {
+//     chrome.bookmarks.create({'parentId': parentId,
+//                              'title': node.title,
+//                              'url': node.url},
+//                             function(newPageOrFolder) {
+//                                 if (node.isFolder) {
+//                                     traverseNodes(node, newPageOrFolder.id)
+//                                 }
+//                             });
+// }
 
-function node(title, url, nodes=[]) {
-    this.id = "-1";
-    this.title = title;
-    this.url = url;
-    this.isFolder = (url == null);
-    this.nodes = nodes;
-}
-
-function writePageCreationMessage(node, parentId) {
-    console.info("Added page or folder '" + node.title + "' (" + node.id + ") to parent folder id " + parentId + ".");
-}
-
-
-
-
+// function node(title, url, nodes=[]) {
+//     this.id = "-1";
+//     this.title = title;
+//     this.url = url;
+//     this.isFolder = (url == null);
+//     this.nodes = nodes;
+// }
 
 
 /*********************************************
@@ -86,24 +83,56 @@ function getAllTags() {
     });
 }
 
-function getAllPosts() {
+function getAllPostsAndGenerateBookmarks() {
+    chrome.storage.local.get('all_bookmarks_last_updated', function(result) {
+        if (result != undefined
+            && result.all_bookmarks_last_updated != undefined
+            && ((new Date() - result.all_bookmarks_last_updated) / 1000) <= 300) {
+            getAllPostsFromLocalStorage();
+        } else {
+            getAllPostsFromPinboard();
+        }
+    });
+}
+
+function getAllPostsFromLocalStorage() {
+    chrome.storage.local.get('all_bookmarks', function(result) {
+        if (result != undefined && result.all_bookmarks != undefined) {
+            console.log('local pull');
+            populateBookmarks(result.all_bookmarks);
+        } else {
+            getAllPostsFromPinboard();
+        }
+    });
+}
+
+function getAllPostsFromPinboard() {
+    console.log('remote pull');
     chrome.storage.local.get('api_token', function(result) {
-        if (result != undefined) {
+        if (result != undefined && result.api_token != undefined) {
             var client = new XMLHttpRequest();
             client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + result.api_token);
             client.onload = function(e) {
-                JSON.parse(client.responseText, (key, value) =>
-                {
-                    if (key != '') {
-                        var element = document.createElement('span');
-                        element.textContent = key;
-                        element.classList.add("tag");
-                        document.body.appendChild(element);
-                    }
-                });
-                logApiResult(client, '/posts/all');
+                if (client.status == 200) {
+                    rawdata = client.responseText;
+                    var data = []
+                    rawdata.forEach(function(url) {
+                        var o = new Object();
+                        o.href = url['href'];
+                        o.description = url['description'];
+                        o.tags = url['tags'];
+                        data.push(o);
+                    });
+                    chrome.storage.local.set({'all_bookmarks_last_updated': new Date()});
+                    chrome.storage.local.set({'all_bookmarks': data});
+                    populateBookmarks(data);
+                } else {
+                    logApiResult(client, '/posts/all');
+                }
             };
             client.send();
+        } else {
+            console.error('API Token is missing. Unable to get bookmarks from Pinboard.')
         }
     });
 }
@@ -128,21 +157,6 @@ function logApiResult(client, apiMethod) {
         console.error('Call to ' + apiMethod + ' failed with response: ' + client.status + ' ' + client.statusText);
 }
 
-/*********************************************
- Storage accessors
-*********************************************/
-
-function storeValue(key, value) {
-    chrome.storage.sync.set({key: value}, function() {
-        console.info("Stored key '" + key + "' with value '" + value + "'");
-    });
-}
-
-function getValue(key) {
-    chrome.storage.sync.get(key, function() {
-        console.info("Retrieved key '" + key + "' from storage.'")
-    });
-}
 
 /*********************************************
  Run the script
@@ -162,8 +176,7 @@ function loadApiTokenFromStorageAndVerify() {
         if (result != undefined) {
             apiToken.value = result.api_token;
             testUserEnteredApiToken(result.api_token);
-        }
-        else {
+        } else {
             setApiTokenValidityIcon(false);
         }
     });
@@ -181,17 +194,18 @@ function registerGenerateBookmarksButton() {
     var generateBookmarks = document.getElementById('generateBookmarks');
     generateBookmarks.addEventListener('click', function() {
         chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
-            //TODO: Generate bookmarks
+            getAllPostsAndGenerateBookmarks();
         });
     });
 }
 
 function loadTagTreeFromSyncStorage() {
     chrome.storage.sync.get('selected_tags', function(result) {
-        if (result != undefined && result.selected_tags != undefined)
+        if (result != undefined && result.selected_tags != undefined) {
             data = result.selected_tags;
-        else
+        } else {
             data = [ { "id" : ROOT_NODE_ID, "text" : "Pinboard", "icon" : "images/root.gif" } ];
+        }
 
         $('#tagTree').jstree({
             'core' : {
@@ -219,7 +233,7 @@ function loadTagTreeFromSyncStorage() {
                 }
             },
             'plugins' : [
-                'contextmenu', 'dnd', 'search', 'sort',
+                'contextmenu', 'dnd', 'sort',
                 'state', 'types', 'wholerow'
             ]
         });
@@ -231,26 +245,8 @@ function setApiTokenValidityIcon(isValid) {
     if (isValid) {
         ind.src = 'images/check.png';
         ind.title = 'Valid Auth Token';
-    }
-    else {
+    } else {
         ind.src = 'images/wrong.png';
         ind.title = 'Invalid Auth Token';
     }
 }
-
-//
-// var googBookmarks = [
-//     new node('Calendar', 'http://calendar.google.com'),
-//     new node('Email', 'https://www.gmail.com'),
-//     new node('Search', 'http://www.google.com')
-// ];
-// var techBookmarks = [
-//     new node('Microsoft', 'http://www.microsoft.com'),
-//     new node('Google', null, googBookmarks),
-//     new node('Mozilla', 'http://developer.mozilla.org')
-// ];
-// var topLevel = [
-//     new node('Tech', null, techBookmarks),
-//     new node('Trello', 'https://www.trello.com'),
-//     new node('Hmm', 'http://www.grantwinney.com')
-// ];
