@@ -38,7 +38,7 @@ class BookmarkHelper {
                             var o = new Object();
                             o.href = url['href'];
                             o.description = url['description'];
-                            o.tags = url['tags'];
+                            o.tags = url['tags'].split(' ');
                             data.push(o);
                         });
                         chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()});
@@ -55,18 +55,16 @@ class BookmarkHelper {
         });
     }
 
-    static generateBookmarks(urls) {
+    static generateBookmarks(allUrls) {
         chrome.bookmarks.getChildren("0", function(children) {
             for (var i = 0; i < children.length; i++) {
                 if (children[i].title == 'Bookmarks Bar') {
-                    urls.forEach(function(url) {
-                        console.log('Creating bookmark \'' + url['description'] + '\' to \'' + url['href'] + '\' with tags \'' + url['tags'] + '\'');
-                    });
-
+                    var relevantUrls = BookmarkHelper.filterBookmarksToSelectedTags(allUrls);
+                    var selectedTags = TagHelper.getSelectedTagDataJson();
                     // if (ADD_ALL_TO_SUBFOLDER) {
-                    //     createPageOrFolder(node, children[i].id);
+                        BookmarkHelper.createPageOrFolder(children[i].id, selectedTags, relevantUrls);
                     // } else {
-                    //     traverseNodes(node, children[i].id);
+                    //     BookmarkHelper.traverseNodes(selectedTags[0]["children"], relevantUrls);
                     // }
                     break;
                 } else {
@@ -76,22 +74,52 @@ class BookmarkHelper {
         });
     }
 
+    static filterBookmarksToSelectedTags(allUrls) {
+        var distinctTagNames = TagHelper.getDistinctTagNames();
+        var relevantUrls = [];
+        for (var t = 0; t < distinctTagNames.length; t++) {
+            var tag = distinctTagNames[t];
+            for (var u = 0; u < allUrls.length; u++) {
+                var url = allUrls[u];
+                if (url.tags.indexOf(tag) != -1 && relevantUrls.indexOf(url) == -1) {
+                    relevantUrls.push(url);
+                }
+            }
+        }
+        return relevantUrls;
+    }
+
+    static createPageOrFolder(parentNodeId, tagNode, urls) {
+        for (var x = 0; x < tagNode.length; x++) {
+            var tag = tagNode[x];
+            var tagClone = JSON.parse(JSON.stringify(tag));
+            if (tagClone['type'] == 'default') {
+                chrome.bookmarks.create({'parentId': parentNodeId,
+                                         'title': tagClone['text']},
+                                        function(newFolder) {
+                                            alert(JSON.stringify(tagClone));
+                                            BookmarkHelper.createPageOrFolder(newFolder.id, tagClone['children'], urls);
+                                        });
+            // } else {
+            //     for (var i = 0; i < urls.length; i++) {
+            //         var url = urls[i]
+            //         if (url['tags'].indexOf(tag['text'] != -1)) {
+            //             chrome.bookmarks.create({'parentId': parentNodeId,
+            //                                      'title': url['description'],
+            //                                      'url': url['href']});
+            //         }
+            //     }
+            }
+        }
+    }
+
+
     // function traverseNodes(parentNode, parentId) {
     //     for (var i = 0; i < parentNode.nodes.length; i++) {
     //         createPageOrFolder(parentNode.nodes[i], parentId);
     //     }
     // }
 
-    // function createPageOrFolder(node, parentId) {
-    //     chrome.bookmarks.create({'parentId': parentId,
-    //                              'title': node.title,
-    //                              'url': node.url},
-    //                             function(newPageOrFolder) {
-    //                                 if (node.isFolder) {
-    //                                     traverseNodes(node, newPageOrFolder.id)
-    //                                 }
-    //                             });
-    // }
 
     // function node(title, url, nodes=[]) {
     //     this.id = "-1";

@@ -33,7 +33,6 @@ class TagHelper {
             if (result != undefined && result.selected_tags != undefined) {
                 var data = result.selected_tags;
             } else {
-                alert(ROOT_NODE_ID);
                 var data = [ { "id" : ROOT_NODE_ID, "text" : "Pinboard", "icon" : "images/root.gif" } ];
             }
 
@@ -68,5 +67,26 @@ class TagHelper {
                 ]
             });
         });
+    }
+
+    static getSelectedTagDataJson() {
+        return $('#tagTree').jstree(true).get_json('#');
+    }
+
+    static getDistinctTagNames() {
+        var names = TagHelper.getAllNamesFromTagTree(TagHelper.getSelectedTagDataJson());
+        return names.filter((v, i, a) => a.indexOf(v) === i);
+    }
+
+    static getAllNamesFromTagTree(treeNode) {
+        var childNodeText = [];
+        for (var i = 0; i < treeNode.length; i++) {
+            if (treeNode[i]['type'] == 'default') {
+                childNodeText = childNodeText.concat(TagHelper.getAllNamesFromTagTree(treeNode[i]["children"]));
+            } else {
+                childNodeText.push(treeNode[i]["text"]);
+            }
+        }
+        return childNodeText;
     }
 }
