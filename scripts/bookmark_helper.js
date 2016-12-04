@@ -59,7 +59,8 @@ function generateBookmarks(allUrls) {
                 // if (ADD_ALL_TO_SUBFOLDER) {
                     createPageOrFolder(children[i].id, selectedTags, relevantUrls);
                 // } else {
-                //     BookmarkHelper.traverseNodes(selectedTags[0]["children"], relevantUrls);
+                //     // call createPageOrFolder() in such a way that the main Pinboard folder is not created,
+                //     // and everything else appears directly in the Bookmarks Bar instead of the Pinboard folder.
                 // }
                 break;
             } else {
