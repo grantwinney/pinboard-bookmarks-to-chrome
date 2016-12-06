@@ -116,7 +116,7 @@ a:hover {
 
 .disabledElement {
     pointer-events: none;
-    opacity: 0.4;
+    opacity: 0.3;
 }
 
 .btn {
@@ -130,7 +130,6 @@ a:hover {
     white-space: nowrap;
     vertical-align: middle;
     cursor: pointer;
-    /*border: 1px solid transparent;*/
     border-radius: 4px;
     outline-width: thin;
 }

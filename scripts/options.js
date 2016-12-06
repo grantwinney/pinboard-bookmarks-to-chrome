@@ -9,7 +9,6 @@ function disableInputElements(message) {
     $("#verifyApiToken").addClass("disabledElement");
     $("#generateBookmarks").addClass("disabledElement");
     $("#tagContainer").addClass("disabledElement");
-
     $("#innerNotice").text(message);
 }
 
@@ -19,12 +18,18 @@ function enableInputElements() {
     $("#verifyApiToken").removeClass("disabledElement");
     $("#generateBookmarks").removeClass("disabledElement");
     $("#tagContainer").removeClass("disabledElement");
+    $("#innerNotice").text('');
 }
 
 window.addEventListener('load', function load(event) {
-    loadApiTokenFromStorageAndVerify();
-    loadSelectedTagsFromStorage();
-    registerCheckApiTokenButton();
-    registerGenerateBookmarksButton();
     disableInputElements("Initializing...");
+    try {
+        loadApiTokenFromStorageAndVerify();
+        loadSelectedTagsFromStorage();
+        registerCheckApiTokenButton();
+        registerGenerateBookmarksButton();
+    }
+    finally {
+        enableInputElements();
+    }
 });
