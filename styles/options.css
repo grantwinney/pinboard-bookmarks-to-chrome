@@ -1,16 +1,18 @@
 body {
-     margin:0;
-     padding:0;
+     margin: 0;
+     padding: 0;
 }
 
 h1 {
     text-align: center;
-    line-height: .5
+    line-height: .5;
+    color: #666
 }
 
 h3 {
     text-align: center;
-    line-height: 1
+    line-height: 1;
+    color: #666
 }
 
 td {
@@ -92,6 +94,29 @@ a:hover {
     outline-width: thin;
     background-color: white;
     color: black;
+}
+
+#outerNotice {
+    width: 100%;
+    text-align: center;
+    position: fixed;
+    left: 150px;
+}
+
+#innerNotice {
+    width: 600px;
+    background: #fc3;
+    color: #c00;
+    font-weight: bold;
+    display: table;
+    margin: -2 auto;
+    border-radius: 0px 0px 4px 4px;
+    opacity: 0.8;
+}
+
+.disabledElement {
+    pointer-events: none;
+    opacity: 0.4;
 }
 
 .btn {

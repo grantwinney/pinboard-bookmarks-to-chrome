@@ -5,7 +5,6 @@ function retrieveAndDisplayAllTags() {
             client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + result.api_token);
             client.onload = function(e) {
                 if (client.status == 200) {
-                    var tagContainer = document.getElementById('tagContainer');
                     JSON.parse(client.responseText, (tagName, tagCount) =>
                     {
                         if (tagName != '') {
@@ -15,7 +14,7 @@ function retrieveAndDisplayAllTags() {
                                 jstree_node_create(tagName);
                             });
                             element.classList.add("tag");
-                            tagContainer.appendChild(element);
+                            $("#tagContainer").append(element);
                         }
                     });
                 } else {

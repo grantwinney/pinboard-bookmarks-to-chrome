@@ -1,8 +1,7 @@
 function loadApiTokenFromStorageAndVerify() {
     chrome.storage.local.get('api_token', function(result) {
-        var apiToken = document.getElementById('apiToken');
         if (result != undefined && result.api_token != undefined) {
-            apiToken.value = result.api_token;
+            $("#apiToken").val(result.api_token);
             verifyApiTokenAndLoadTags(result.api_token);
         } else {
             setApiTokenValidityIcon(false);
