@@ -114,6 +114,20 @@ a:hover {
     opacity: 0.8;
 }
 
+#help {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    outline-width: thin;
+}
+
+#debug {
+    position: absolute;
+    top: 5px;
+    right: 30px;
+    outline-width: thin;
+}
+
 .disabledElement {
     pointer-events: none;
     opacity: 0.3;
