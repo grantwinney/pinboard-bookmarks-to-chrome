@@ -58,42 +58,10 @@ function retrieveAndDisplayAllTags() {
 function loadSelectedTagsFromStorage() {
     chrome.storage.sync.get('selected_tags', function(result) {
         if (result != undefined && result.selected_tags != undefined) {
-            var data = result.selected_tags;
+            generateTagTree(result.selected_tags);
         } else {
-            var data = [ { "id" : ROOT_NODE_ID, "text" : "Pinboard", "icon" : "images/root.gif" } ];
+            generateTagTree([{"id":ROOT_NODE_ID, "text":"Pinboard", "icon":"images/root.gif"}]);
         }
-
-        $('#tagTree').jstree({
-            'core' : {
-                'animation' : 100,
-                'themes' : { 'stripes' : false },
-                'multiple' : false,
-                'check_callback' : true,
-                'data' : data,
-            },
-            'types' : {
-                '#' : {
-                    'max_children' : 1,
-                    'valid_children' : ['root']
-                },
-                'root' : {
-                    'icon' : '../../images/tree_icon.png',
-                    'valid_children' : ['default']
-                },
-                'default' : {
-                    'valid_children' : ['default', 'file']
-                },
-                'file' : {
-                    'icon' : '../../images/bookmark_icon.png',
-                    'valid_children' : []
-                }
-            },
-            'plugins' : [
-                'contextmenu', 'dnd', 'sort',
-                'state', 'types', 'wholerow'
-            ]
-        });
-
         enableInputElements();
     });
 }
@@ -119,11 +87,161 @@ function getAllNamesFromTagTree(treeNode) {
     return childNodeText;
 }
 
+function generateTagTree(data) {
+    $('#tagTree').jstree({
+        'core' : {
+            'animation' : 100,
+            'themes' : { 'stripes' : false },
+            'multiple' : false,
+            'check_callback' : true,
+            'data' : data,
+        },
+        'types' : {
+            '#' : {
+                'max_children' : 1,
+                'valid_children' : ['root']
+            },
+            'root' : {
+                'icon' : '../../images/tree_icon.png',
+                'valid_children' : ['default']
+            },
+            'default' : {
+                'valid_children' : ['default', 'file']
+            },
+            'file' : {
+                'icon' : '../../images/bookmark_icon.png',
+                'valid_children' : []
+            }
+        },
+        'plugins' : [
+            'contextmenu', 'dnd', 'sort',
+            'state', 'types', 'wholerow'
+        ],
+        'sort' : function (a, b) {
+    		return this.get_type(a) === this.get_type(b)
+                ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1)
+                : (this.get_type(a) >= this.get_type(b) ? 1 : -1)
+        },
+        'contextmenu' : {
+            'items' : function (o, cb) {
+    			return {
+    				"create" : {
+    					"separator_before"	: false,
+    					"separator_after"	: true,
+    					"_disabled"			: o.type == 'file', //(this.check("create_node", data.reference, {}, "last")),
+    					"label"				: "Create",
+    					"action"			: function (data) {
+    						var inst = $.jstree.reference(data.reference),
+    							obj = inst.get_node(data.reference);
+    						inst.create_node(obj, {}, "last", function (new_node) {
+    							setTimeout(function () { inst.edit(new_node); },0);
+    						});
+    					}
+    				},
+    				"rename" : {
+    					"separator_before"	: false,
+    					"separator_after"	: false,
+    					"_disabled"			: o.type == 'file', //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+    					"label"				: "Rename",
+    					/*!
+    					"shortcut"			: 113,
+    					"shortcut_label"	: 'F2',
+    					"icon"				: "glyphicon glyphicon-leaf",
+    					*/
+    					"action"			: function (data) {
+    						var inst = $.jstree.reference(data.reference),
+    							obj = inst.get_node(data.reference);
+    						inst.edit(obj);
+    					}
+    				},
+    				"remove" : {
+    					"separator_before"	: false,
+    					"icon"				: false,
+    					"separator_after"	: false,
+    					"_disabled"			: o.id == 'node_0', //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+    					"label"				: "Delete",
+    					"action"			: function (data) {
+    						var inst = $.jstree.reference(data.reference),
+    							obj = inst.get_node(data.reference);
+                            if (obj.type == 'default' && obj.children.length > 0) {
+                                if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
+                                    return true;
+                                }
+                            }
+    						if(inst.is_selected(obj)) {
+    							inst.delete_node(inst.get_selected());
+    						}
+    						else {
+    							inst.delete_node(obj);
+    						}
+    					}
+    				},
+    				"ccp" : {
+    					"separator_before"	: true,
+    					"icon"				: false,
+    					"separator_after"	: false,
+    					"label"				: "Edit",
+    					"_disabled"			: o.id == 'node_0',
+    					"action"			: false,
+    					"submenu" : {
+    						"cut" : {
+    							"separator_before"	: false,
+    							"separator_after"	: false,
+    							"label"				: "Cut",
+    							"action"			: function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								if(inst.is_selected(obj)) {
+    									inst.cut(inst.get_top_selected());
+    								}
+    								else {
+    									inst.cut(obj);
+    								}
+    							}
+    						},
+    						"copy" : {
+    							"separator_before"	: false,
+    							"icon"				: false,
+    							"separator_after"	: false,
+    							"label"				: "Copy",
+    							"action"			: function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								if(inst.is_selected(obj)) {
+    									inst.copy(inst.get_top_selected());
+    								}
+    								else {
+    									inst.copy(obj);
+    								}
+    							}
+    						},
+    						"paste" : {
+    							"separator_before"	: false,
+    							"icon"				: false,
+    							"_disabled"			: function (data) {
+    								return !$.jstree.reference(data.reference).can_paste();
+    							},
+    							"separator_after"	: false,
+    							"label"				: "Paste",
+    							"action"			: function (data) {
+    								var inst = $.jstree.reference(data.reference),
+    									obj = inst.get_node(data.reference);
+    								inst.paste(obj);
+    							}
+    						}
+    					}
+    				}
+    			};
+    		}
+        }
+    });
+}
+
 /***********************
  JSTREE NODE FUNCTIONS
 ************************/
 
-function jstree_node_create(nodeName = '') {
+function jstree_node_create(nodeName = null) {
 	var tagTree = $('#tagTree').jstree();
     var selectedNodeIds = tagTree.get_selected();
     var firstNodeId = selectedNodeIds.length ? selectedNodeIds[0] : ROOT_NODE_ID;
@@ -136,7 +254,7 @@ function jstree_node_create(nodeName = '') {
         firstNodeId = tagTree.get_node(firstNode).parent;
     }
 
-    if (nodeName == '') {
+    if (nodeName == null) {
 	    newNodeId = tagTree.create_node(firstNodeId, {"id" : "", "text" : "New Folder", "opened" : true});
         tagTree.edit(newNodeId);
     }
@@ -259,8 +377,10 @@ window.onerror = function(messageOrEvent, sourceUrl, lineNo, columnNo, error) {
 }
 
 // window.addEventListener('error', function load(event) {
-//     console.error('An error has occurred: ' + event.error.toString());
+//     var errorMessage = 'An error has occurred: ' + event.error.toString();
+//     console.error(errorMessage);
 //     console.error('Stack trace: ' + event.error.stack);
+//     alert(errorMessage)
 //     enableInputElements();
 // });
 

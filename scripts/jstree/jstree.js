@@ -5787,7 +5787,7 @@
 				"create" : {
 					"separator_before"	: false,
 					"separator_after"	: true,
-					"_disabled"			: o.type == 'file', //(this.check("create_node", data.reference, {}, "last")),
+					"_disabled"			: false, //(this.check("create_node", data.reference, {}, "last")),
 					"label"				: "Create",
 					"action"			: function (data) {
 						var inst = $.jstree.reference(data.reference),
@@ -5800,7 +5800,7 @@
 				"rename" : {
 					"separator_before"	: false,
 					"separator_after"	: false,
-					"_disabled"			: o.type == 'file', //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+					"_disabled"			: false, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
 					"label"				: "Rename",
 					/*!
 					"shortcut"			: 113,
@@ -5817,16 +5817,11 @@
 					"separator_before"	: false,
 					"icon"				: false,
 					"separator_after"	: false,
-					"_disabled"			: o.id == 'node_0', //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+					"_disabled"			: false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
 					"label"				: "Delete",
 					"action"			: function (data) {
 						var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-                        if (obj.type == 'default' && obj.children.length > 0) {
-                            if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
-                                return true;
-                            }
-                        }
 						if(inst.is_selected(obj)) {
 							inst.delete_node(inst.get_selected());
 						}
@@ -5840,7 +5835,6 @@
 					"icon"				: false,
 					"separator_after"	: false,
 					"label"				: "Edit",
-					"_disabled"			: o.id == 'node_0',
 					"action"			: false,
 					"submenu" : {
 						"cut" : {
@@ -7561,10 +7555,8 @@
 	 * @plugin sort
 	 */
 	$.jstree.defaults.sort = function (a, b) {
-		return this.get_type(a) === this.get_type(b)
-            ? (this.get_text(a).toLowerCase() > this.get_text(b).toLowerCase() ? 1 : -1)
-            : (this.get_type(a) >= this.get_type(b) ? 1 : -1);
-    	//return this.get_text(a) > this.get_text(b) ? 1 : -1;
+		//return this.get_type(a) === this.get_type(b) ? (this.get_text(a) > this.get_text(b) ? 1 : -1) : this.get_type(a) >= this.get_type(b);
+		return this.get_text(a) > this.get_text(b) ? 1 : -1;
 	};
 	$.jstree.plugins.sort = function (options, parent) {
 		this.bind = function () {
