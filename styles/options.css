@@ -175,3 +175,7 @@ a:hover {
 .instructions {
     line-height: 1.5;
 }
+
+.center {
+    text-align: center;
+}

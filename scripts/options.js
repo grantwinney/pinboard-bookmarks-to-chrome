@@ -123,12 +123,12 @@ function generateTagTree(data) {
                 : (this.get_type(a) >= this.get_type(b) ? 1 : -1)
         },
         'contextmenu' : {
-            'items' : function (o, cb) {
+            'items' : function (node, callback) {
     			return {
     				"create" : {
     					"separator_before"	: false,
     					"separator_after"	: true,
-    					"_disabled"			: o.type == 'file', //(this.check("create_node", data.reference, {}, "last")),
+    					"_disabled"			: node.type == 'file', //(this.check("create_node", data.reference, {}, "last")),
     					"label"				: "Create",
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference),
@@ -141,7 +141,7 @@ function generateTagTree(data) {
     				"rename" : {
     					"separator_before"	: false,
     					"separator_after"	: false,
-    					"_disabled"			: o.type == 'file', //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+    					"_disabled"			: node.type == 'file', //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
     					"label"				: "Rename",
     					/*!
     					"shortcut"			: 113,
@@ -158,7 +158,7 @@ function generateTagTree(data) {
     					"separator_before"	: false,
     					"icon"				: false,
     					"separator_after"	: false,
-    					"_disabled"			: o.id == 'node_0', //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+    					"_disabled"			: node.id == 'node_0', //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
     					"label"				: "Delete",
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference),
@@ -181,7 +181,7 @@ function generateTagTree(data) {
     					"icon"				: false,
     					"separator_after"	: false,
     					"label"				: "Edit",
-    					"_disabled"			: o.id == 'node_0',
+    					"_disabled"			: node.id == 'node_0',
     					"action"			: false,
     					"submenu" : {
     						"cut" : {
