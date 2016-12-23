@@ -125,55 +125,76 @@ function generateTagTree(data) {
         'contextmenu' : {
             'items' : function (node, callback) {
     			return {
-    				"create" : {
+    				"create_folder" : {
     					"separator_before"	: false,
-    					"separator_after"	: true,
-    					"_disabled"			: node.type == 'file', //(this.check("create_node", data.reference, {}, "last")),
-    					"label"				: "Create",
+    					"separator_after"	: false,
+    					"_disabled"			: node.type == 'file',
+    					"label"				: "Add Folder",
     					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-    						inst.create_node(obj, {}, "last", function (new_node) {
+    						var inst = $.jstree.reference(data.reference);
+    					    var curr_node = inst.get_node(data.reference);
+    						inst.create_node(curr_node, { "text" : "New Folder" }, "last", function (new_node) {
     							setTimeout(function () { inst.edit(new_node); },0);
     						});
     					}
     				},
-    				"rename" : {
+    				"rename_folder" : {
     					"separator_before"	: false,
     					"separator_after"	: false,
-    					"_disabled"			: node.type == 'file', //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
-    					"label"				: "Rename",
-    					/*!
-    					"shortcut"			: 113,
-    					"shortcut_label"	: 'F2',
-    					"icon"				: "glyphicon glyphicon-leaf",
-    					*/
+    					"_disabled"			: node.type == 'file',
+    					"label"				: "Rename Folder",
     					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
+    						var inst = $.jstree.reference(data.reference);
+    						var obj = inst.get_node(data.reference);
     						inst.edit(obj);
     					}
     				},
-    				"remove" : {
+    				"remove_folder" : {
     					"separator_before"	: false,
-    					"icon"				: false,
     					"separator_after"	: false,
-    					"_disabled"			: node.id == 'node_0', //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
-    					"label"				: "Delete",
+    					"_disabled"			: node.type != 'default',
+    					"label"				: "Delete Folder",
     					"action"			: function (data) {
-    						var inst = $.jstree.reference(data.reference),
-    							obj = inst.get_node(data.reference);
-                            if (obj.type == 'default' && obj.children.length > 0) {
-                                if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
-                                    return true;
-                                }
-                            }
+    						var inst = $.jstree.reference(data.reference);
+    					    var obj = inst.get_node(data.reference);
+                            // if (obj.type == 'default' && obj.children.length > 0) {
+                            //     if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
+                            //         return true;
+                            //     }
+                            // }
     						if(inst.is_selected(obj)) {
     							inst.delete_node(inst.get_selected());
     						}
     						else {
     							inst.delete_node(obj);
     						}
+    					}
+    				},
+    				"create_tag" : {
+    					"separator_before"	: true,
+    					"separator_after"	: false,
+    					"_disabled"			: node.type == 'file',
+    					"label"				: "Add Tag",
+    					"action"			: function (data) {
+                            jstree_node_create();
+    					}
+    				},
+    				"rename_tag" : {
+    					"separator_before"	: false,
+    					"separator_after"	: false,
+    					"_disabled"			: node.type != 'file',
+    					"label"				: "Rename Tag",
+    					"action"			: function (data) {
+    						jstree_node_rename();
+    					}
+    				},
+    				"remove_tag" : {
+    					"separator_before"	: false,
+    					"separator_after"	: false,
+    					"_disabled"			: node.type != 'file',
+    					"label"				: "Delete Tag",
+    					"action"			: function (data) {
+    						jstree_node_delete();
     					}
     				},
     				"ccp" : {
@@ -189,8 +210,8 @@ function generateTagTree(data) {
     							"separator_after"	: false,
     							"label"				: "Cut",
     							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
+    								var inst = $.jstree.reference(data.reference);
+    								var obj = inst.get_node(data.reference);
     								if(inst.is_selected(obj)) {
     									inst.cut(inst.get_top_selected());
     								}
@@ -205,8 +226,8 @@ function generateTagTree(data) {
     							"separator_after"	: false,
     							"label"				: "Copy",
     							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
+    								var inst = $.jstree.reference(data.reference);
+    								var obj = inst.get_node(data.reference);
     								if(inst.is_selected(obj)) {
     									inst.copy(inst.get_top_selected());
     								}
@@ -249,57 +270,84 @@ function jstree_node_create(nodeName = null) {
     var firstNode = tagTree.get_node(firstNodeId);
     if (firstNode.type == 'default') {
         firstNode.state.opened = true;
-    }
-    else {
+    } else {
         firstNodeId = tagTree.get_node(firstNode).parent;
     }
 
-    if (nodeName == null) {
-	    newNodeId = tagTree.create_node(firstNodeId, {"id" : "", "text" : "New Folder", "opened" : true});
-        tagTree.edit(newNodeId);
+    if ($('#create_folder_for_tag').is(':checked')) {
+        firstNodeId = tagTree.create_node(firstNodeId,
+            {"id" : "", "type" : "default", "text" : (nodeName == null ? "New Folder" : nodeName), "opened" : true});
     }
-    else {
+
+    if (nodeName == null) {
+        newNodeId = tagTree.create_node(firstNodeId, {"id" : "", "type" : "file", "text" : "New Tag", "opened" : true});
+        tagTree.edit(newNodeId);
+    } else {
         tagTree.create_node(firstNodeId, {"id" : "", "type" : "file", "text" : nodeName});
     }
 };
 
-// function jstree_node_rename() {
-// 	var tagTree = $('#tagTree').jstree();
-//     var selectedNodeIds = tagTree.get_selected();
-// 	if (!selectedNodeIds.length) {
-//         return false;
-//     }
-//
-// 	var firstNodeId = selectedNodeIds[0];
-//     var firstNode = tagTree.get_node(firstNodeId);
-//     if (firstNode.type == 'file') {
-//         return false;
-//     }
-//
-// 	tagTree.edit(firstNodeId);
-// };
+function createPageOrFolder(parentNodeId, tagNode, urls, shouldCreateParentFolder) {
+    tagNode.forEach(function(tag) {
+        if (tag['type'] == 'default') {
+            chrome.bookmarks.create({'parentId': parentNodeId,
+                                     'title': tag['text']},
+                                    function(newFolder) {
+                                        createPageOrFolder(newFolder.id, tag['children'], urls, shouldCreateParentFolder);
+                                    });
+        } else {
+            urls.forEach(function(url) {
+                if (url['tags'].indexOf(tag['text']) != -1) {
+                    if (shouldCreateParentFolder) {
+                        chrome.bookmarks.create({'parentId': parentNodeId,
+                                                 'title': url['description']},
+                                                 function(newFolder) {
+                                                     chrome.bookmarks.create({'parentId': newFolder.id,
+                                                                              'title': url['description']});
+                                                });
+                    } else {
+                        chrome.bookmarks.create({'parentId': parentNodeId,
+                                                 'title': url['description'],
+                                                 'url': url['href']});
+                    }
+                }
+            })
+        }
+    })
+    enableInputElements();
+}
 
-// function jstree_node_delete() {
-// 	var tagTree = $('#tagTree').jstree();
-//     var selectedNodeIds = tagTree.get_selected();
-// 	if (!selectedNodeIds.length) {
-//         return false;
-//     }
-//
-// 	var firstNodeId = selectedNodeIds[0];
-//     if (firstNodeId == ROOT_NODE_ID) {
-//         return false;
-//     }
-//
-//     var firstNode = tagTree.get_node(firstNodeId);
-//     if (firstNode.type == 'default' && firstNode.children.length > 0) {
-//         if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
-//             return false;
-//         }
-//     }
-//
-// 	tagTree.delete_node(firstNodeId);
-// };
+function jstree_node_rename() {
+	var tagTree = $('#tagTree').jstree();
+    var selectedNodeIds = tagTree.get_selected();
+	if (!selectedNodeIds.length) {
+        return false;
+    }
+
+	tagTree.edit(selectedNodeIds[0]);
+};
+
+function jstree_node_delete() {
+	var tagTree = $('#tagTree').jstree();
+    var selectedNodeIds = tagTree.get_selected();
+	if (!selectedNodeIds.length) {
+        return false;
+    }
+
+	var firstNodeId = selectedNodeIds[0];
+    if (firstNodeId == ROOT_NODE_ID) {
+        return false;
+    }
+
+    var firstNode = tagTree.get_node(firstNodeId);
+    if (firstNode.type == 'default' && firstNode.children.length > 0) {
+        if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
+            return false;
+        }
+    }
+
+	tagTree.delete_node(firstNodeId);
+};
 
 
 /****************************************
@@ -524,6 +572,24 @@ function subscribeEvents() {
             window.location.reload();
         }
     });
+
+    $("#saveTags").on('click', function() {
+        chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')});
+    });
+
+    $("#help").on('click', function() {
+        $("#settingsBox").hide('size', { origin: ["top", "right"] }, 300);
+        $("#helpBox").toggle('size', { origin: ["top", "right"] }, 500);
+    });
+
+    $("#settings").on('click', function() {
+        $("#helpBox").hide('size', { origin: ["top", "right"] }, 300);
+        $("#settingsBox").toggle('size', { origin: ["top", "right"] }, 500);
+    });
+
+    $("#create_folder_for_tag").on('click', function() {
+        chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')});
+    });
 }
 
 window.addEventListener('load', function load(event) {
@@ -531,4 +597,9 @@ window.addEventListener('load', function load(event) {
     loadSelectedTagsFromStorage();
     loadApiTokenFromStorageAndVerify();
     subscribeEvents();
+
+    chrome.storage.sync.get('create_folder_for_tag', function(result) {
+        $('#create_folder_for_tag').attr('checked',
+            result != undefined && result.create_folder_for_tag != undefined && result.create_folder_for_tag);
+    });
 });

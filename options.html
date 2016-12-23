@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="scripts/jstree/themes/default/style.css" />
         <link rel="stylesheet" href="styles/options.css" />
         <script src="scripts/jquery-3.1.1.js"></script>
+        <script src="scripts/jquery-ui.js"></script>
         <script src="scripts/jstree/jstree.js"></script>
         <script src="scripts/options.js"></script>
     </head>
@@ -12,6 +13,7 @@
         <table id="main">
             <tr>
                 <td id="leftPanel">
+                    <button id="saveTags">Save Tags</button>
                     <div id="tagTree"></div>
                 </td>
                 <td id="rightPanel">
@@ -29,11 +31,6 @@
                         If you don't see your tags below, check your Internet connection,
                         <a href="https://pinboard.in/settings/password">verify your API key</a>,
                         and <a href="https://github.com/grantwinney/pinboard-bookmarks-to-chrome/wiki">check the docs</a>.
-                    <p class="instructions">
-                        Select tags to generate bookmarks from.
-                        Organize them on the left (right-click the tree to add or rename folders,
-                        and to delete folders and bookmarks).
-                        When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
                     <p class="center">
                         <button id="generateBookmarks">Generate Bookmarks</button>
                     </p>
@@ -41,7 +38,24 @@
                 </td>
             </tr>
         </table>
+        <div id="helpBox"><p class="section-header">HELP</p>
+            <hr style="width:80%"/>
+            <p>Select tags to generate bookmarks from.</p>
+            <p>Organize them on the left (right-click the tree to add or rename folders, and to delete folders and bookmarks).</p>
+            <p>When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
+            <p>Your selected tags will be saved automatically when you generate bookmarks, or you can press the "Save Tags" button at any time.</p>
+        </div>
         <input id="help" type="image" src="images/help.png" />
+        <div id="settingsBox">
+            <p class="section-header">SETTINGS</p>
+            <hr style="width:80%"/>
+            <p>
+                <input type="checkbox" id="create_folder_for_tag" value="createFolder">
+                    Automatically create a parent folder for each tag?
+                </input>
+            </p>
+        </div>
+        <input id="settings" type="image" src="images/settings.png" />
         <input id="debug" type="image" src="images/debug.gif" />
     </body>
 </html>

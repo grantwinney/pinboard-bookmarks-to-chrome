@@ -96,6 +96,15 @@ a:hover {
     color: black;
 }
 
+#saveTags {
+    font-weight: bold;
+    outline-width: thin;
+    position: fixed;
+    margin: 3px;
+    left:200px;
+    z-index: 10;
+}
+
 #outerNotice {
     width: 100%;
     text-align: center;
@@ -121,10 +130,40 @@ a:hover {
     outline-width: thin;
 }
 
-#debug {
+#helpBox {
+    position: absolute;
+    top: 30px;
+    right: 3px;
+    width: 300px;
+    background-color: #eef;
+    display: none;
+    opacity: 0.9;
+    border: 1px solid #000;
+    padding: 0px 5px;
+}
+
+#settings {
     position: absolute;
     top: 5px;
     right: 30px;
+    outline-width: thin;
+}
+
+#settingsBox {
+    position: absolute;
+    top: 30px;
+    right: 3px;
+    background-color: #efe;
+    display: none;
+    opacity: 0.9;
+    border: 1px solid #000;
+    padding: 0px 5px;
+}
+
+#debug {
+    position: absolute;
+    top: 5px;
+    right: 55px;
     outline-width: thin;
 }
 
@@ -172,10 +211,11 @@ a:hover {
     text-align: center;
 }
 
-.instructions {
-    line-height: 1.5;
-}
-
 .center {
     text-align: center;
+}
+
+.section-header {
+    text-align: center;
+    font-weight: bold;
 }
