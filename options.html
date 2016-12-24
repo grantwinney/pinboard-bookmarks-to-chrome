@@ -20,20 +20,22 @@
                     <div id="outerNotice">
                         <div id="innerNotice"></div>
                     </div>
-                    <h1>Pinboard Bookmarks to Chrome</h1>
-                    <h3>Select Pinboard Tags for One-Way Sync</h3>
-                    <p id="apiPanel">Enter your <a href="https://pinboard.in/settings/password">API Token</a>:
-                        <input id="apiToken" type="password">
-                        <input id="verifyApiToken" type="image" src="images/refresh.png" title="Verify Token">
-                        <img id="apiTokenStatusIndicator" src="images/wrong.png" />
-                    </p>
-                    <p class="notice">
-                        If you don't see your tags below, check your Internet connection,
-                        <a href="https://pinboard.in/settings/password">verify your API key</a>,
-                        and <a href="https://github.com/grantwinney/pinboard-bookmarks-to-chrome/wiki">check the docs</a>.
-                    <p class="center">
-                        <button id="generateBookmarks">Generate Bookmarks</button>
-                    </p>
+                    <div style="width: 100%; text-align: center;">
+                        <h1>Pinboard Bookmarks to Chrome</h1>
+                        <h3>Select Pinboard Tags for One-Way Sync</h3>
+                        <p id="apiPanel">Enter your <a href="https://pinboard.in/settings/password">API Token</a>:
+                            <input id="apiToken" type="password">
+                            <input id="verifyApiToken" type="image" src="images/refresh.png" title="Verify Token">
+                            <img id="apiTokenStatusIndicator" src="images/wrong.png" />
+                        </p>
+                        <p class="notice">
+                            If you don't see your tags below, check your Internet connection,
+                            <a href="https://pinboard.in/settings/password">verify your API key</a>,
+                            and <a href="https://github.com/grantwinney/pinboard-bookmarks-to-chrome/wiki">check the docs</a>.
+                        <p class="center">
+                            <button id="generateBookmarks">Generate Bookmarks</button>
+                        </p>
+                    </div>
                     <div id="tagContainer" class="center"></div>
                 </td>
             </tr>
@@ -50,8 +52,12 @@
             <p class="section-header">SETTINGS</p>
             <hr style="width:80%"/>
             <p>
-                <input type="checkbox" id="create_folder_for_tag" value="createFolder">
+                <input type="checkbox" id="create_folder_for_tag">
                     Automatically create a parent folder for each tag?
+                </input>
+                <br/>
+                <input type="checkbox" id="add_directly_to_bookmarks_bar">
+                    Add all bookmarks directly to the Bookmarks Bar?
                 </input>
             </p>
         </div>

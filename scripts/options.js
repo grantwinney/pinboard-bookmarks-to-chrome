@@ -1,7 +1,8 @@
-// right now, always set to true, might add as option later
-ADD_ALL_TO_SUBFOLDER = true;
 ALL_POSTS_REQUEST_LIMIT_IN_SEC = 300;
 ROOT_NODE_ID = 'node_0';
+
+DEFAULT_AND_DELIMITER = '+';
+DEFAULT_OR_DELIMITER = '|';
 
 function disableInputElements(message) {
     ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer'].forEach(function(element) {
@@ -35,9 +36,9 @@ function retrieveAndDisplayAllTags() {
                     {
                         if (tagName != '') {
                             var element = document.createElement('button');
-                            element.textContent = tagName;
+                            element.textContent = tagName.toLowerCase();
                             element.addEventListener('click', function() {
-                                jstree_node_create(tagName);
+                                jstree_node_create(tagName.toLowerCase());
                             });
                             element.classList.add("tag");
                             $("#tagContainer").append(element);
@@ -47,6 +48,9 @@ function retrieveAndDisplayAllTags() {
                 } else {
                     logInvalidResponse('/tags/get', client);
                 }
+            };
+            client.onerror = function(e) {
+                throw e;
             };
             client.send();
         } else {
@@ -81,7 +85,7 @@ function getAllNamesFromTagTree(treeNode) {
         if (treeNode[i]['type'] == 'default') {
             childNodeText = childNodeText.concat(getAllNamesFromTagTree(treeNode[i]["children"]));
         } else {
-            childNodeText.push(treeNode[i]["text"]);
+            childNodeText.push(treeNode[i]["text"].toLowerCase());
         }
     }
     return childNodeText;
@@ -202,13 +206,14 @@ function generateTagTree(data) {
     					"icon"				: false,
     					"separator_after"	: false,
     					"label"				: "Edit",
-    					"_disabled"			: node.id == 'node_0',
+    					"_disabled"			: false,
     					"action"			: false,
     					"submenu" : {
     						"cut" : {
     							"separator_before"	: false,
     							"separator_after"	: false,
     							"label"				: "Cut",
+                                "_disabled"         : node.id == 'node_0',
     							"action"			: function (data) {
     								var inst = $.jstree.reference(data.reference);
     								var obj = inst.get_node(data.reference);
@@ -225,6 +230,7 @@ function generateTagTree(data) {
     							"icon"				: false,
     							"separator_after"	: false,
     							"label"				: "Copy",
+                                "_disabled"         : node.id == 'node_0',
     							"action"			: function (data) {
     								var inst = $.jstree.reference(data.reference);
     								var obj = inst.get_node(data.reference);
@@ -378,6 +384,9 @@ function verifyApiTokenAndLoadTags(apiToken) {
             logInvalidResponse('/user/api_token', client, false);
         }
     };
+    client.onerror = function(e) {
+        throw e;
+    };
     if ($.trim($("#apiToken").val()) != '') {
         disableInputElements("Verifying API Token");
         client.send();
@@ -407,7 +416,7 @@ function logInvalidResponse(action, client, showPopup = true) {
     enableInputElements();
 }
 
-function logError(message, showPopup = false) {
+function logError(message, showPopup = true) {
     var errorMessage = 'An error has occurred: ' + message;
     console.error(errorMessage);
     if (showPopup)
@@ -418,19 +427,13 @@ function logError(message, showPopup = false) {
 window.onerror = function(messageOrEvent, sourceUrl, lineNo, columnNo, error) {
     var errorMessage = 'An error occurred on "' + sourceUrl + '[' + lineNo + ':' + columnNo + ']": ' + messageOrEvent;
     console.error(errorMessage);
-    console.error('Stack trace: ' + error.stack);
+    if (error.stack != undefined) {
+        console.error('Stack trace: ' + error.stack);
+    }
     alert(errorMessage);
     enableInputElements();
     return false;
 }
-
-// window.addEventListener('error', function load(event) {
-//     var errorMessage = 'An error has occurred: ' + event.error.toString();
-//     console.error(errorMessage);
-//     console.error('Stack trace: ' + event.error.stack);
-//     alert(errorMessage)
-//     enableInputElements();
-// });
 
 
 /***************************************************************
@@ -472,7 +475,10 @@ function getAllPostsFromPinboard() {
                         var o = new Object();
                         o.href = url['href'];
                         o.description = url['description'];
-                        o.tags = url['tags'].split(' ');
+                        o.tags = [];
+                        url['tags'].split(' ').forEach(function(tag) {
+                            o.tags.push(tag.toLowerCase());
+                        });
                         data.push(o);
                     });
                     chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()});
@@ -482,10 +488,12 @@ function getAllPostsFromPinboard() {
                     logInvalidResponse('/posts/all', client);
                 }
             };
+            client.onerror = function(e) {
+                throw e;
+            };
             client.send();
         } else {
             var message = 'API Token is missing.\n\nUnable to get bookmarks from Pinboard.';
-            alert(message);
             logError(message);
         }
     });
@@ -498,18 +506,18 @@ function generateBookmarks(allUrls) {
             if (children[i].title == 'Bookmarks Bar') {
                 isBarFound = true;
                 var relevantUrls = filterBookmarksToSelectedTags(allUrls);
-                var selectedTags = getSelectedTagDataJson();
-                // if (ADD_ALL_TO_SUBFOLDER) {
-                    createPageOrFolder(children[i].id, selectedTags, relevantUrls);
-                // } else {
-                //     // call createPageOrFolder() in such a way that the main Pinboard folder is not created,
-                //     // and everything else appears directly in the Bookmarks Bar instead of the Pinboard folder.
-                // }
+                var topTagNode = getSelectedTagDataJson();
+
+                if ($('#add_directly_to_bookmarks_bar').is(':checked')) {
+                    createPageOrFolder(children[i].id, topTagNode[0]['children'], relevantUrls);
+                } else {
+                    createPageOrFolder(children[i].id, topTagNode, relevantUrls);
+                }
                 break;
             }
         }
         if (isBarFound == false) {
-            logError('Cannot add bookmarks. Unable to find the \'Bookmarks Bar\'.')
+            logError('Cannot add bookmarks. Unable to find the "Bookmarks Bar".');
         }
     });
 }
@@ -517,10 +525,24 @@ function generateBookmarks(allUrls) {
 function filterBookmarksToSelectedTags(allUrls) {
     var distinctTagNames = getDistinctTagNames();
     var relevantUrls = [];
-    distinctTagNames.forEach(function(tag) {
+    distinctTagNames.forEach(function(tagName) {
         allUrls.forEach(function(url) {
-            if (url.tags.indexOf(tag) != -1 && relevantUrls.indexOf(url) == -1) {
-                relevantUrls.push(url);
+            if (tagName.indexOf(DEFAULT_AND_DELIMITER) > -1) {
+                var tagNodeNames = tagName.split(DEFAULT_AND_DELIMITER);
+            } else if (tagName.indexOf(DEFAULT_OR_DELIMITER) > -1) {
+                var tagNodeNames = tagName.split(DEFAULT_OR_DELIMITER);
+            }
+
+            if (tagNodeNames == undefined) {
+                if (url.tags.indexOf(tagName) != -1 && relevantUrls.indexOf(url) == -1) {
+                    relevantUrls.push(url);
+                }
+            } else {
+                tagNodeNames.forEach(function(tagNodeName) {
+                    if (url.tags.indexOf(tagNodeName) != -1 && relevantUrls.indexOf(url) == -1) {
+                        relevantUrls.push(url);
+                    }
+                });
             }
         })
     })
@@ -532,19 +554,42 @@ function createPageOrFolder(parentNodeId, tagNode, urls) {
         if (tag['type'] == 'default') {
             chrome.bookmarks.create({'parentId': parentNodeId,
                                      'title': tag['text']},
-                                    function(newFolder) {
-                                        createPageOrFolder(newFolder.id, tag['children'], urls);
-                                    });
+                                     function(newFolder) {
+                                         createPageOrFolder(newFolder.id, tag['children'], urls);
+                                     });
         } else {
             urls.forEach(function(url) {
-                if (url['tags'].indexOf(tag['text']) != -1) {
-                    chrome.bookmarks.create({'parentId': parentNodeId,
-                                             'title': url['description'],
-                                             'url': url['href']});
+                var tagNodeName = tag['text'];
+                if (tagNodeName.indexOf(DEFAULT_AND_DELIMITER) > -1) {
+                    var tagNodeNames = tagNodeName.split(DEFAULT_AND_DELIMITER);
+                    var comparison = "AND";
+                } else if (tagNodeName.indexOf(DEFAULT_OR_DELIMITER) > -1) {
+                    var tagNodeNames = tagNodeName.split(DEFAULT_OR_DELIMITER);
+                    var comparison = "OR";
                 }
-            })
+
+                if (tagNodeNames == undefined) {
+                    if (url['tags'].indexOf(tagNodeName.toLowerCase()) != -1) {
+                        chrome.bookmarks.create({'parentId': parentNodeId,
+                                                 'title': url['description'],
+                                                 'url': url['href']});
+                    }
+                } else if (comparison == "OR") {
+                    if (tagNodeNames.some(x => url['tags'].indexOf(x.toLowerCase()) != -1)) {
+                        chrome.bookmarks.create({'parentId': parentNodeId,
+                                                 'title': url['description'],
+                                                 'url': url['href']});
+                    }
+                } else if (comparison == "AND") {  // comparison is AND
+                    if (tagNodeNames.every(x => url['tags'].indexOf(x.toLowerCase()) != -1)) {
+                        chrome.bookmarks.create({'parentId': parentNodeId,
+                                                 'title': url['description'],
+                                                 'url': url['href']});
+                    }
+                }
+            });
         }
-    })
+    });
     enableInputElements();
 }
 
@@ -587,6 +632,10 @@ function subscribeEvents() {
         $("#settingsBox").toggle('size', { origin: ["top", "right"] }, 500);
     });
 
+    $("#add_directly_to_bookmarks_bar").on('click', function() {
+        chrome.storage.sync.set({'add_directly_to_bookmarks_bar': $('#add_directly_to_bookmarks_bar').is(':checked')});
+    });
+
     $("#create_folder_for_tag").on('click', function() {
         chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')});
     });
@@ -597,6 +646,11 @@ window.addEventListener('load', function load(event) {
     loadSelectedTagsFromStorage();
     loadApiTokenFromStorageAndVerify();
     subscribeEvents();
+
+    chrome.storage.sync.get('add_directly_to_bookmarks_bar', function(result) {
+        $('#add_directly_to_bookmarks_bar').attr('checked',
+            result != undefined && result.add_directly_to_bookmarks_bar != undefined && result.add_directly_to_bookmarks_bar);
+    });
 
     chrome.storage.sync.get('create_folder_for_tag', function(result) {
         $('#create_folder_for_tag').attr('checked',
