@@ -4,6 +4,10 @@ ROOT_NODE_ID = 'node_0';
 DEFAULT_AND_DELIMITER = '+';
 DEFAULT_OR_DELIMITER = '|';
 
+var tagLogicalAndDelimiter = DEFAULT_AND_DELIMITER;
+var tagLogicalOrDelimiter = DEFAULT_OR_DELIMITER;
+
+
 function disableInputElements(message) {
     ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer'].forEach(function(element) {
         $(element).addClass('disabledElement');
@@ -527,10 +531,10 @@ function filterBookmarksToSelectedTags(allUrls) {
     var relevantUrls = [];
     distinctTagNames.forEach(function(tagName) {
         allUrls.forEach(function(url) {
-            if (tagName.indexOf(DEFAULT_AND_DELIMITER) > -1) {
-                var tagNodeNames = tagName.split(DEFAULT_AND_DELIMITER);
-            } else if (tagName.indexOf(DEFAULT_OR_DELIMITER) > -1) {
-                var tagNodeNames = tagName.split(DEFAULT_OR_DELIMITER);
+            if (tagName.indexOf(tagLogicalAndDelimiter) > -1) {
+                var tagNodeNames = tagName.split(tagLogicalAndDelimiter);
+            } else if (tagName.indexOf(tagLogicalOrDelimiter) > -1) {
+                var tagNodeNames = tagName.split(tagLogicalOrDelimiter);
             }
 
             if (tagNodeNames == undefined) {
@@ -560,11 +564,11 @@ function createPageOrFolder(parentNodeId, tagNode, urls) {
         } else {
             urls.forEach(function(url) {
                 var tagNodeName = tag['text'];
-                if (tagNodeName.indexOf(DEFAULT_AND_DELIMITER) > -1) {
-                    var tagNodeNames = tagNodeName.split(DEFAULT_AND_DELIMITER);
+                if (tagNodeName.indexOf(tagLogicalAndDelimiter) > -1) {
+                    var tagNodeNames = tagNodeName.split(tagLogicalAndDelimiter);
                     var comparison = "AND";
-                } else if (tagNodeName.indexOf(DEFAULT_OR_DELIMITER) > -1) {
-                    var tagNodeNames = tagNodeName.split(DEFAULT_OR_DELIMITER);
+                } else if (tagNodeName.indexOf(tagLogicalOrDelimiter) > -1) {
+                    var tagNodeNames = tagNodeName.split(tagLogicalOrDelimiter);
                     var comparison = "OR";
                 }
 
@@ -591,6 +595,19 @@ function createPageOrFolder(parentNodeId, tagNode, urls) {
         }
     });
     enableInputElements();
+}
+
+
+/***********************
+ USER INPUT VALIDATION
+************************/
+
+function preventInvalidOperatorFromUser(event) {
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    if (key == ' ' || key == ',') {
+        event.preventDefault();
+        return false;
+    }
 }
 
 
@@ -639,6 +656,30 @@ function subscribeEvents() {
     $("#create_folder_for_tag").on('click', function() {
         chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')});
     });
+
+    $("#desired_and_operator").on('input', function() {
+        var userInput = $('#desired_and_operator').val();
+        if (userInput.length == 1 && userInput != ' ' && userInput != ',') {
+            chrome.storage.sync.set({'desired_and_operator': userInput});
+            tagLogicalAndDelimiter = userInput;
+        }
+    });
+
+    $('#desired_and_operator').on('keypress', function (event) {
+        preventInvalidOperatorFromUser(event);
+    });
+
+    $("#desired_or_operator").on('input', function() {
+        var userInput = $('#desired_or_operator').val();
+        if (userInput.length == 1 && userInput != ' ' && userInput != ',') {
+            chrome.storage.sync.set({'desired_or_operator': userInput});
+            tagLogicalOrDelimiter = userInput;
+        }
+    });
+
+    $('#desired_or_operator').on('keypress', function (event) {
+        preventInvalidOperatorFromUser(event);
+    });
 }
 
 window.addEventListener('load', function load(event) {
@@ -647,13 +688,33 @@ window.addEventListener('load', function load(event) {
     loadApiTokenFromStorageAndVerify();
     subscribeEvents();
 
+    chrome.storage.sync.get('create_folder_for_tag', function(result) {
+        $('#create_folder_for_tag').attr('checked',
+            result != undefined && result.create_folder_for_tag != undefined && result.create_folder_for_tag);
+    });
+
     chrome.storage.sync.get('add_directly_to_bookmarks_bar', function(result) {
         $('#add_directly_to_bookmarks_bar').attr('checked',
             result != undefined && result.add_directly_to_bookmarks_bar != undefined && result.add_directly_to_bookmarks_bar);
     });
 
-    chrome.storage.sync.get('create_folder_for_tag', function(result) {
-        $('#create_folder_for_tag').attr('checked',
-            result != undefined && result.create_folder_for_tag != undefined && result.create_folder_for_tag);
+    chrome.storage.sync.get('desired_and_operator', function(result) {
+        if (result != undefined && result.desired_and_operator != undefined
+            && result.desired_and_operator != "," && result.desired_and_operator != " ") {
+            tagLogicalAndDelimiter = result.desired_and_operator;
+        } else {
+            tagLogicalAndDelimiter = DEFAULT_AND_DELIMITER;
+        }
+        $('#desired_and_operator').val(tagLogicalAndDelimiter);
+    });
+
+    chrome.storage.sync.get('desired_or_operator', function(result) {
+        if (result != undefined && result.desired_or_operator != undefined
+            && result.desired_or_operator != "," && result.desired_or_operator != " ") {
+            tagLogicalOrDelimiter = result.desired_or_operator;
+        } else {
+            tagLogicalOrDelimiter = DEFAULT_OR_DELIMITER;
+        }
+        $('#desired_or_operator').val(tagLogicalOrDelimiter);
     });
 });
