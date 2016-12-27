@@ -62,14 +62,25 @@
             </p>
             <hr style="width:80%"/>
             <p>
-                Desired AND operator:
+                <input type="checkbox" id="ignore_tag_delimiters">
+                    Ignore tag delimiters?
+                </input>
+                <br />
+                <span id="desired_and_operator_label">
+                    Desired AND operator:
+                </span>
                 <input type="text" id="desired_and_operator" size="3" maxlength="1" />
                 <br />
-                Desired OR operator:
+                <span id="desired_or_operator_label">
+                    Desired OR operator:
+                </span>
                 <input type="text" id="desired_or_operator" size="3" maxlength="1" />
+            </p>
+            <hr style="width:80%"/>
+            <p>
+                <button id="deleteAllCache">Delete All Cache</button>
             </p>
         </div>
         <input id="settings" type="image" src="images/settings.png" />
-        <input id="debug" type="image" src="images/debug.gif" />
     </body>
 </html>

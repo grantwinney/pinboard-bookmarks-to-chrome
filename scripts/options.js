@@ -1,11 +1,14 @@
-ALL_POSTS_REQUEST_LIMIT_IN_SEC = 300;
-ROOT_NODE_ID = 'node_0';
+var ALL_POSTS_REQUEST_LIMIT_IN_SEC = 300;
+var ROOT_NODE_ID = 'node_0';
 
-DEFAULT_AND_DELIMITER = '+';
-DEFAULT_OR_DELIMITER = '|';
+var DEFAULT_AND_DELIMITER = '+';
+var DEFAULT_OR_DELIMITER = '|';
 
 var tagLogicalAndDelimiter = DEFAULT_AND_DELIMITER;
 var tagLogicalOrDelimiter = DEFAULT_OR_DELIMITER;
+
+var ENABLED_TEXT_COLOR = "#000";
+var DISABLED_TEXT_COLOR = "#666";
 
 
 function disableInputElements(message) {
@@ -297,36 +300,6 @@ function jstree_node_create(nodeName = null) {
     }
 };
 
-function createPageOrFolder(parentNodeId, tagNode, urls, shouldCreateParentFolder) {
-    tagNode.forEach(function(tag) {
-        if (tag['type'] == 'default') {
-            chrome.bookmarks.create({'parentId': parentNodeId,
-                                     'title': tag['text']},
-                                    function(newFolder) {
-                                        createPageOrFolder(newFolder.id, tag['children'], urls, shouldCreateParentFolder);
-                                    });
-        } else {
-            urls.forEach(function(url) {
-                if (url['tags'].indexOf(tag['text']) != -1) {
-                    if (shouldCreateParentFolder) {
-                        chrome.bookmarks.create({'parentId': parentNodeId,
-                                                 'title': url['description']},
-                                                 function(newFolder) {
-                                                     chrome.bookmarks.create({'parentId': newFolder.id,
-                                                                              'title': url['description']});
-                                                });
-                    } else {
-                        chrome.bookmarks.create({'parentId': parentNodeId,
-                                                 'title': url['description'],
-                                                 'url': url['href']});
-                    }
-                }
-            })
-        }
-    })
-    enableInputElements();
-}
-
 function jstree_node_rename() {
 	var tagTree = $('#tagTree').jstree();
     var selectedNodeIds = tagTree.get_selected();
@@ -511,11 +484,12 @@ function generateBookmarks(allUrls) {
                 isBarFound = true;
                 var relevantUrls = filterBookmarksToSelectedTags(allUrls);
                 var topTagNode = getSelectedTagDataJson();
+                var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
 
                 if ($('#add_directly_to_bookmarks_bar').is(':checked')) {
-                    createPageOrFolder(children[i].id, topTagNode[0]['children'], relevantUrls);
+                    createPageOrFolder(children[i].id, topTagNode[0]['children'], relevantUrls, ignoreDelimiters);
                 } else {
-                    createPageOrFolder(children[i].id, topTagNode, relevantUrls);
+                    createPageOrFolder(children[i].id, topTagNode, relevantUrls, ignoreDelimiters);
                 }
                 break;
             }
@@ -529,12 +503,17 @@ function generateBookmarks(allUrls) {
 function filterBookmarksToSelectedTags(allUrls) {
     var distinctTagNames = getDistinctTagNames();
     var relevantUrls = [];
+    var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
     distinctTagNames.forEach(function(tagName) {
         allUrls.forEach(function(url) {
-            if (tagName.indexOf(tagLogicalAndDelimiter) > -1) {
-                var tagNodeNames = tagName.split(tagLogicalAndDelimiter);
-            } else if (tagName.indexOf(tagLogicalOrDelimiter) > -1) {
-                var tagNodeNames = tagName.split(tagLogicalOrDelimiter);
+            if (!ignoreDelimiters) {
+                if (tagName.indexOf(tagLogicalAndDelimiter) > -1) {
+                    var tagNodeNames = tagName.split(tagLogicalAndDelimiter)
+                                              .filter(function(s) {return s.length != 0});
+                } else if (tagName.indexOf(tagLogicalOrDelimiter) > -1) {
+                    var tagNodeNames = tagName.split(tagLogicalOrDelimiter)
+                                              .filter(function(s) {return s.length != 0});
+                }
             }
 
             if (tagNodeNames == undefined) {
@@ -553,23 +532,27 @@ function filterBookmarksToSelectedTags(allUrls) {
     return relevantUrls;
 }
 
-function createPageOrFolder(parentNodeId, tagNode, urls) {
+function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters) {
     tagNode.forEach(function(tag) {
         if (tag['type'] == 'default') {
             chrome.bookmarks.create({'parentId': parentNodeId,
                                      'title': tag['text']},
                                      function(newFolder) {
-                                         createPageOrFolder(newFolder.id, tag['children'], urls);
+                                         createPageOrFolder(newFolder.id, tag['children'], urls, ignoreDelimiters);
                                      });
         } else {
             urls.forEach(function(url) {
                 var tagNodeName = tag['text'];
-                if (tagNodeName.indexOf(tagLogicalAndDelimiter) > -1) {
-                    var tagNodeNames = tagNodeName.split(tagLogicalAndDelimiter);
-                    var comparison = "AND";
-                } else if (tagNodeName.indexOf(tagLogicalOrDelimiter) > -1) {
-                    var tagNodeNames = tagNodeName.split(tagLogicalOrDelimiter);
-                    var comparison = "OR";
+                if (!ignoreDelimiters) {
+                    if (tagNodeName.indexOf(tagLogicalAndDelimiter) > -1) {
+                        var tagNodeNames = tagNodeName.split(tagLogicalAndDelimiter)
+                                                      .filter(function(s) {return s.length != 0});
+                        var comparison = "AND";
+                    } else if (tagNodeName.indexOf(tagLogicalOrDelimiter) > -1) {
+                        var tagNodeNames = tagNodeName.split(tagLogicalOrDelimiter)
+                                                      .filter(function(s) {return s.length != 0});
+                        var comparison = "OR";
+                    }
                 }
 
                 if (tagNodeNames == undefined) {
@@ -627,14 +610,6 @@ function subscribeEvents() {
         });
     });
 
-    $("#debug").on('click', function() {
-        if (confirm('Delete all stored data for this extension?')) {
-            chrome.storage.local.clear();
-            chrome.storage.sync.clear();
-            window.location.reload();
-        }
-    });
-
     $("#saveTags").on('click', function() {
         chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')});
     });
@@ -649,12 +624,21 @@ function subscribeEvents() {
         $("#settingsBox").toggle('size', { origin: ["top", "right"] }, 500);
     });
 
+    $("#create_folder_for_tag").on('click', function() {
+        chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')});
+    });
+
     $("#add_directly_to_bookmarks_bar").on('click', function() {
         chrome.storage.sync.set({'add_directly_to_bookmarks_bar': $('#add_directly_to_bookmarks_bar').is(':checked')});
     });
 
-    $("#create_folder_for_tag").on('click', function() {
-        chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')});
+    $("#ignore_tag_delimiters").on('click', function() {
+        var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
+        chrome.storage.sync.set({'ignore_tag_delimiters': ignoreDelimiters});
+        $("#desired_and_operator").prop('disabled', ignoreDelimiters);
+        $("#desired_or_operator").prop('disabled', ignoreDelimiters);
+        $("#desired_and_operator_label").css("color", ignoreDelimiters ? DISABLED_TEXT_COLOR : ENABLED_TEXT_COLOR);
+        $("#desired_or_operator_label").css("color", ignoreDelimiters ? DISABLED_TEXT_COLOR : ENABLED_TEXT_COLOR);
     });
 
     $("#desired_and_operator").on('input', function() {
@@ -680,6 +664,14 @@ function subscribeEvents() {
     $('#desired_or_operator').on('keypress', function (event) {
         preventInvalidOperatorFromUser(event);
     });
+
+    $("#deleteAllCache").on('click', function() {
+        if (confirm('This will delete all stored data for this extension. Continue?')) {
+            chrome.storage.local.clear();
+            chrome.storage.sync.clear();
+            window.location.reload();
+        }
+    });
 }
 
 window.addEventListener('load', function load(event) {
@@ -696,6 +688,15 @@ window.addEventListener('load', function load(event) {
     chrome.storage.sync.get('add_directly_to_bookmarks_bar', function(result) {
         $('#add_directly_to_bookmarks_bar').attr('checked',
             result != undefined && result.add_directly_to_bookmarks_bar != undefined && result.add_directly_to_bookmarks_bar);
+    });
+
+    chrome.storage.sync.get('ignore_tag_delimiters', function(result) {
+        var ignoreDelimiters = result != undefined && result.ignore_tag_delimiters != undefined && result.ignore_tag_delimiters;
+        $('#ignore_tag_delimiters').attr('checked', ignoreDelimiters);
+        $("#desired_and_operator").prop('disabled', ignoreDelimiters);
+        $("#desired_or_operator").prop('disabled', ignoreDelimiters);
+        $("#desired_and_operator_label").css("color", ignoreDelimiters ? DISABLED_TEXT_COLOR : ENABLED_TEXT_COLOR);
+        $("#desired_or_operator_label").css("color", ignoreDelimiters ? DISABLED_TEXT_COLOR : ENABLED_TEXT_COLOR);
     });
 
     chrome.storage.sync.get('desired_and_operator', function(result) {

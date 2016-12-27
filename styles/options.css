@@ -137,7 +137,6 @@ a:hover {
     width: 300px;
     background-color: #eef;
     display: none;
-    opacity: 0.9;
     border: 1px solid #000;
     padding: 0px 5px;
 }
@@ -155,16 +154,8 @@ a:hover {
     right: 3px;
     background-color: #ddd;
     display: none;
-    opacity: 0.9;
     border: 1px solid #000;
     padding: 0px 5px;
-}
-
-#debug {
-    position: absolute;
-    top: 5px;
-    right: 55px;
-    outline-width: thin;
 }
 
 .disabledElement {
