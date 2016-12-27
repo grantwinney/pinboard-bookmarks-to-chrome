@@ -39,6 +39,7 @@ function retrieveAndDisplayAllTags() {
                 if (client.status == 200) {
                     disableInputElements("Loading Tags from Pinboard");
                     $("#tagContainer").empty();
+                    $('#searchFilter').off('input');
                     JSON.parse(client.responseText, (tagName, tagCount) =>
                     {
                         if (tagName != '') {
@@ -51,6 +52,7 @@ function retrieveAndDisplayAllTags() {
                             $("#tagContainer").append(element);
                         }
                     });
+                    applyTagListFilter();
                     enableInputElements();
                 } else {
                     logInvalidResponse('/tags/get', client);
@@ -575,9 +577,9 @@ function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters) {
 }
 
 
-/***********************
- USER INPUT VALIDATION
-************************/
+/*******************
+ HANDLE USER INPUT
+********************/
 
 function preventInvalidOperatorFromUser(event) {
     var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
@@ -585,6 +587,18 @@ function preventInvalidOperatorFromUser(event) {
         event.preventDefault();
         return false;
     }
+}
+
+function applyTagListFilter() {
+    var tags = $('.tag');
+    $('#searchFilter').on('input', function() {
+        var regex = new RegExp('\\b' + this.value, "i");
+        var tagsToShow = tags.filter(function() {
+            return regex.test($(this).text());
+        });
+        tags.not(tagsToShow).hide();
+        tagsToShow.show();
+    });
 }
 
 

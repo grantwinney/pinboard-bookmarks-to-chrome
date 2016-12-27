@@ -158,6 +158,11 @@ a:hover {
     padding: 0px 5px;
 }
 
+#searchFilter {
+    padding: 5px;
+    margin: 0 0 15 0;
+}
+
 .disabledElement {
     pointer-events: none;
     opacity: 0.3;
