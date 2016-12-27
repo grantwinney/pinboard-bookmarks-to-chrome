@@ -143,8 +143,7 @@ function generateTagTree(data) {
     					"label"				: "Add Folder",
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference);
-    					    var curr_node = inst.get_node(data.reference);
-    						inst.create_node(curr_node, { "text" : "New Folder" }, "last", function (new_node) {
+    						inst.create_node(node, { "text" : "New Folder" }, "last", function (new_node) {
     							setTimeout(function () { inst.edit(new_node); },0);
     						});
     					}
@@ -156,8 +155,7 @@ function generateTagTree(data) {
     					"label"				: "Rename Folder",
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference);
-    						var obj = inst.get_node(data.reference);
-    						inst.edit(obj);
+    						inst.edit(node);
     					}
     				},
     				"remove_folder" : {
@@ -167,17 +165,16 @@ function generateTagTree(data) {
     					"label"				: "Delete Folder",
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference);
-    					    var obj = inst.get_node(data.reference);
-                            if (obj.type == 'default' && obj.children.length > 0
+                            if (node.type == 'default' && node.children.length > 0
                                 && $('#confirm_before_deleting_folder').is(':checked')
                                 && !(confirm('Really delete this folder and all of its contents?'))) {
                                         return true;
                             }
-    						if(inst.is_selected(obj)) {
+    						if(inst.is_selected(node)) {
     							inst.delete_node(inst.get_selected());
     						}
     						else {
-    							inst.delete_node(obj);
+    							inst.delete_node(node);
     						}
     					}
     				},
@@ -223,12 +220,11 @@ function generateTagTree(data) {
                                 "_disabled"         : node.id == 'node_0',
     							"action"			: function (data) {
     								var inst = $.jstree.reference(data.reference);
-    								var obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
+    								if(inst.is_selected(node)) {
     									inst.cut(inst.get_top_selected());
     								}
     								else {
-    									inst.cut(obj);
+    									inst.cut(node);
     								}
     							}
     						},
@@ -240,12 +236,11 @@ function generateTagTree(data) {
                                 "_disabled"         : node.id == 'node_0',
     							"action"			: function (data) {
     								var inst = $.jstree.reference(data.reference);
-    								var obj = inst.get_node(data.reference);
-    								if(inst.is_selected(obj)) {
+    								if(inst.is_selected(node)) {
     									inst.copy(inst.get_top_selected());
     								}
     								else {
-    									inst.copy(obj);
+    									inst.copy(node);
     								}
     							}
     						},
@@ -259,8 +254,7 @@ function generateTagTree(data) {
     							"label"				: "Paste",
     							"action"			: function (data) {
     								var inst = $.jstree.reference(data.reference);
-    								var obj = inst.get_node(data.reference);
-    								inst.paste(obj);
+    								inst.paste(node);
     							}
     						}
     					}
