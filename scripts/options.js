@@ -168,11 +168,11 @@ function generateTagTree(data) {
     					"action"			: function (data) {
     						var inst = $.jstree.reference(data.reference);
     					    var obj = inst.get_node(data.reference);
-                            // if (obj.type == 'default' && obj.children.length > 0) {
-                            //     if (!(confirm('Are you sure you want to delete this folder and all subfolders and bookmarks within it?'))) {
-                            //         return true;
-                            //     }
-                            // }
+                            if (obj.type == 'default' && obj.children.length > 0
+                                && $('#confirm_before_deleting_folder').is(':checked')
+                                && !(confirm('Really delete this folder and all of its contents?'))) {
+                                        return true;
+                            }
     						if(inst.is_selected(obj)) {
     							inst.delete_node(inst.get_selected());
     						}
@@ -258,8 +258,8 @@ function generateTagTree(data) {
     							"separator_after"	: false,
     							"label"				: "Paste",
     							"action"			: function (data) {
-    								var inst = $.jstree.reference(data.reference),
-    									obj = inst.get_node(data.reference);
+    								var inst = $.jstree.reference(data.reference);
+    								var obj = inst.get_node(data.reference);
     								inst.paste(obj);
     							}
     						}
@@ -632,6 +632,10 @@ function subscribeEvents() {
         chrome.storage.sync.set({'add_directly_to_bookmarks_bar': $('#add_directly_to_bookmarks_bar').is(':checked')});
     });
 
+    $("#confirm_before_deleting_folder").on('click', function() {
+        chrome.storage.sync.set({'confirm_before_deleting_folder': $('#confirm_before_deleting_folder').is(':checked')});
+    });
+
     $("#ignore_tag_delimiters").on('click', function() {
         var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
         chrome.storage.sync.set({'ignore_tag_delimiters': ignoreDelimiters});
@@ -688,6 +692,12 @@ window.addEventListener('load', function load(event) {
     chrome.storage.sync.get('add_directly_to_bookmarks_bar', function(result) {
         $('#add_directly_to_bookmarks_bar').attr('checked',
             result != undefined && result.add_directly_to_bookmarks_bar != undefined && result.add_directly_to_bookmarks_bar);
+    });
+
+    chrome.storage.sync.get('confirm_before_deleting_folder', function(result) {
+        var initializeSetting = (result == undefined || result.confirm_before_deleting_folder == undefined);
+        $('#confirm_before_deleting_folder').attr('checked',
+             initializeSetting ? true : result.confirm_before_deleting_folder);
     });
 
     chrome.storage.sync.get('ignore_tag_delimiters', function(result) {
