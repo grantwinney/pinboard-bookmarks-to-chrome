@@ -1,7 +1,7 @@
 var ALL_POSTS_REQUEST_LIMIT_IN_SEC = 300;
 var ROOT_NODE_ID = 'node_0';
 
-var DEFAULT_AND_DELIMITER = '+';
+var DEFAULT_AND_DELIMITER = ';';
 var DEFAULT_OR_DELIMITER = '|';
 
 var tagLogicalAndDelimiter = DEFAULT_AND_DELIMITER;
@@ -450,7 +450,7 @@ function getAllPostsFromPinboard() {
                         o.description = url['description'];
                         o.tags = [];
                         url['tags'].split(' ').forEach(function(tag) {
-                            o.tags.push(tag.toLowerCase());
+                            o.tags.push(he.decode(tag).toLowerCase());
                         });
                         data.push(o);
                     });
