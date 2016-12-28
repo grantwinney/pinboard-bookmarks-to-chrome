@@ -25,7 +25,7 @@
                         <h3>Select Pinboard Tags for One-Way Sync</h3>
                         <p id="apiPanel">Enter your <a href="https://pinboard.in/settings/password">API Token</a>:
                             <input id="apiToken" type="password">
-                            <input id="verifyApiToken" type="image" src="images/refresh.png" title="Verify Token">
+                            <input id="verifyApiToken" type="image" src="images/refresh.svg" title="Verify Token">
                             <img id="apiTokenStatusIndicator" src="images/wrong.png" />
                         </p>
                         <p class="notice">
@@ -52,15 +52,21 @@
                 </td>
             </tr>
         </table>
-        <div id="helpBox"><p class="section-header">HELP</p>
+        <div class="menu">
+            <input id="settings" class="menuItem" type="image" src="images/gear.svg" />
+            <input id="help" class="menuItem" type="image" src="images/help.svg" />
+        </div>
+        <div id="helpBox">
+            <input id="closeHelpBox" type="image" src="images/minimize.png" class="popupBoxMinimize" />
+            <p class="section-header">HELP</p>
             <hr style="width:80%"/>
             <p>Select tags to generate bookmarks from.</p>
             <p>Organize them on the left (right-click the tree to add or rename folders, and to delete folders and bookmarks).</p>
             <p>When you click "Generate", bookmarks will be generated in the Bookmarks Bar.</p>
             <p>Your selected tags will be saved automatically when you generate bookmarks, or you can press the "Save Tags" button at any time.</p>
         </div>
-        <input id="help" type="image" src="images/help.png" />
         <div id="settingsBox">
+            <input id="closeSettingsBox" type="image" src="images/minimize.png" class="popupBoxMinimize" />
             <p class="section-header">SETTINGS</p>
             <hr style="width:80%"/>
             <p>
@@ -97,6 +103,5 @@
                 <button id="deleteAllCache">Delete All Cache</button>
             </p>
         </div>
-        <input id="settings" type="image" src="images/settings.png" />
     </body>
 </html>

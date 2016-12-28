@@ -12,14 +12,14 @@ var DISABLED_TEXT_COLOR = "#666";
 
 
 function disableInputElements(message) {
-    ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer'].forEach(function(element) {
+    ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer','#searchFilter'].forEach(function(element) {
         $(element).addClass('disabledElement');
     });
     $("#innerNotice").text(message + '...');
 }
 
 function enableInputElements() {
-    ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer'].forEach(function(element) {
+    ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer','#searchFilter'].forEach(function(element) {
         $(element).removeClass("disabledElement");
     });
     $("#innerNotice").text('');
@@ -609,6 +609,7 @@ function applyTagListFilter() {
 function subscribeEvents() {
     $("#verifyApiToken").on("click", function() {
         verifyApiTokenAndLoadTags($("#apiToken").val());
+        $('#searchFilter').val('');
     });
 
     $("#generateBookmarks").on('click', function() {
@@ -623,13 +624,21 @@ function subscribeEvents() {
     });
 
     $("#help").on('click', function() {
-        $("#settingsBox").hide('size', { origin: ["top", "right"] }, 300);
-        $("#helpBox").toggle('size', { origin: ["top", "right"] }, 500);
+        $("#settingsBox").hide('drop', { direction: "right" }, 100);
+        $("#helpBox").toggle('drop', { direction: "right" }, 300);
+    });
+
+    $("#closeHelpBox").on('click', function() {
+        $("#helpBox").hide('drop', { direction: "right" }, 300);
     });
 
     $("#settings").on('click', function() {
-        $("#helpBox").hide('size', { origin: ["top", "right"] }, 300);
-        $("#settingsBox").toggle('size', { origin: ["top", "right"] }, 500);
+        $("#helpBox").hide('drop', { direction: "right" }, 100);
+        $("#settingsBox").toggle('drop', { direction: "right" }, 300);
+    });
+
+    $("#closeSettingsBox").on('click', function() {
+        $("#settingsBox").hide('drop', { direction: "right" }, 300);
     });
 
     $("#create_folder_for_tag").on('click', function() {
