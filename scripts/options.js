@@ -394,10 +394,9 @@ function logInvalidResponse(action, client, showPopup = true) {
 }
 
 function logError(message, showPopup = true) {
-    var errorMessage = 'An error has occurred:' + message;
-    console.error(errorMessage);
+    console.error(message);
     if (showPopup)
-        alert(errorMessage);
+        alert(message);
     enableInputElements();
 }
 
@@ -510,7 +509,7 @@ function generateBookmarks(allUrls) {
             }
         }
         if (isBarFound == false) {
-            logError('Cannot add bookmarks. Unable to find the "Bookmarks Bar".');
+            logError('Cannot add bookmarks. Unable to find the "Bookmarks Bar" in your browser.');
         }
     });
 }
