@@ -1,9 +1,20 @@
 # Import Pinboard Bookmarks to Chrome
-An extension to import bookmarks from the [Pinboard](https://pinboard.in) bookmark service into the [Chrome browser](https://www.google.com/chrome/browser/desktop/).
+Using a bookmarking service like [Pinboard](https://pinboard.in) is convenient. You always have what you need on-the-go, and you're not tied to a single browser. But for day-to-day use, it's tedious to open the Pinboard site and search for a URL - potentially the same one over and over again if you need it frequently.
 
-This is not a 'sync', as bookmarks created manually in Chrome will not be pushed to Pinboard.
+I wrote this extension because I wanted a way to generate bookmarks in [Chrome](https://www.google.com/chrome/browser/desktop/) using Pinboard's "tags".
 
-This is only guaranteed to work in the latest version of Chrome. I've seen other extensions like the Google Mail Checker that do a certain amount of work to be backwards-compatible. Since I'm always on the latest, that's all I'm testing for.
+# What This is _Not_
+This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via 'tag') into the Chrome browser.
+
+# Getting the Extension
+Get it from the Chrome store.
+
+You can also clone this repo to your machine and then load it in developer mode by [following these instructions](https://developer.chrome.com/extensions/getstarted#unpacked).
+
+This is only guaranteed to work in the latest version of Chrome. Since I'm always on the latest, that's all I'm testing for... I really don't have time or resources to ensure it's backwards-compatible with version xx.
+
+# Starting Out
+
 
 # Warnings
 Storage... tags and bookmarks, sync and local
