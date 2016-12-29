@@ -20,3 +20,21 @@ This is only guaranteed to work in the latest version of Chrome. Since I'm alway
 Storage... tags and bookmarks, sync and local
 
 I decided to allow a single folder to have multiple tags by using `+` for AND, and `|` for OR. Since Pinboard also allows you to use those symbols in your tag names, that could cause problems. It's what I needed though, and I don't use unusual symbols in my tag names, and I suggest you don't either.
+
+# Resources
+There are several resources I used in developing this.
+
+## Reference Material
+If you want to create your own Chrome extension, start with the [Chrome developer tutorials](https://developer.chrome.com/extensions). They explain the purpose of the manifest.json file, the various API endpoints and limitations, etc.
+
+I also found the [Mozilla Developer Network (MDN) JavaScript docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript) to be a great resource.
+
+Don't be afraid to [reach out using social media](https://twitter.com/GrantWinney/status/798240234853068801). Someone may have just the info you're looking for.
+
+## Libraries
+I used several libraries for various tasks in the extension. Here are the links if you want to check them out.
+
+* [He](https://github.com/mathiasbynens/he): _A robust HTML entity encoder/decoder written in JavaScript._
+* [jQuery](http://jquery.com/): _A fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works across a multitude of browsers._
+* [jQuery UI](https://jqueryui.com/): _A a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library._
+* [jsTree](https://www.jstree.com/): _A jQuery plugin, that provides interactive trees._
