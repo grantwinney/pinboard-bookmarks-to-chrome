@@ -14,7 +14,17 @@ You can also clone this repo to your machine and then load it in developer mode 
 This is only guaranteed to work in the latest version of Chrome. Since I'm always on the latest, that's all I'm testing for... I really don't have time or resources to ensure it's backwards-compatible with version xx.
 
 # Starting Out
+When you open the extension for the first time, you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password).
 
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pinboard_api_token.png)
+
+Until you supply a valid token, you'll see a red X. If you try to generate bookmarks, it'll complain that your "API token is missing. Unable to get bookmarks from Pinboard."
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/enter_your_api_token_empty.png)
+
+[Find your API Token](https://pinboard.in/settings/password) and copy it into the box. Press the "refresh" button to validate it. If it's correct, you should see a green checkmark and then all your available tags should be loaded automatically.
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/enter_your_api_token_valid_2.png)
 
 # Warnings
 Storage... tags and bookmarks, sync and local
