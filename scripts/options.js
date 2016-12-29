@@ -10,6 +10,8 @@ var tagLogicalOrDelimiter = DEFAULT_OR_DELIMITER;
 var ENABLED_TEXT_COLOR = "#000";
 var DISABLED_TEXT_COLOR = "#666";
 
+var allBookmarks;
+
 
 function disableInputElements(message) {
     ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer','#searchFilter'].forEach(function(element) {
@@ -423,21 +425,9 @@ function getAllPostsAndGenerateBookmarks() {
         }
         if (result != undefined
             && result.all_bookmarks_last_updated != undefined
-            && ((new Date() - Date.parse(result.all_bookmarks_last_updated)) / 1000) < ALL_POSTS_REQUEST_LIMIT_IN_SEC) {
-            getAllPostsFromLocalStorage();
-        } else {
-            getAllPostsFromPinboard();
-        }
-    });
-}
-
-function getAllPostsFromLocalStorage() {
-    chrome.storage.local.get('all_bookmarks', function(result) {
-        if (chrome.runtime.lastError) {
-            logError("Unable to retrieve bookmarks from storage:\n\n" + chrome.runtime.lastError.message);
-        }
-        if (result != undefined && result.all_bookmarks != undefined) {
-            generateBookmarks(result.all_bookmarks);
+            && ((new Date() - Date.parse(result.all_bookmarks_last_updated)) / 1000) < ALL_POSTS_REQUEST_LIMIT_IN_SEC
+            && allBookmarks != undefined) {
+            generateBookmarks(allBookmarks);
         } else {
             getAllPostsFromPinboard();
         }
@@ -465,14 +455,10 @@ function getAllPostsFromPinboard() {
                         });
                         data.push(o);
                     });
+                    allBookmarks = data;
                     chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()}, function() {
                         if (chrome.runtime.lastError) {
                             logError("Unable to save last full-bookmarks retrieval date to storage:\n\n" + chrome.runtime.lastError.message, false);
-                        }
-                    });
-                    chrome.storage.local.set({'all_bookmarks': data}, function() {
-                        if (chrome.runtime.lastError) {
-                            logError("Unable to save bookmarks to storage:\n\n" + chrome.runtime.lastError.message, false);
                         }
                     });
                     generateBookmarks(data);
