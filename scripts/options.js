@@ -30,52 +30,44 @@ function enableInputElements() {
  LOADING AND MANIPULATING TAG DATA
 ************************************/
 
-function retrieveAndDisplayAllTags() {
-    chrome.storage.local.get('api_token', function(result) {
-        if (chrome.runtime.lastError) {
-            logError("Unable to retrieve API token from storage\n\n: " + chrome.runtime.lastError.message);
-            enableInputElements();
-        } else if (result != undefined && result.api_token != undefined && $.trim(result.api_token) != '') {
-            var client = new XMLHttpRequest();
-            client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + result.api_token);
-            client.onload = function(e) {
-                if (client.status == 200) {
-                    disableInputElements("Loading Tags from Pinboard");
-                    $("#tagContainer").empty();
-                    $('#searchFilter').off('input');
-                    JSON.parse(client.responseText, (tagName, tagCount) =>
-                    {
-                        if (tagName != '') {
-                            var element = document.createElement('button');
-                            element.textContent = tagName.toLowerCase();
-                            element.addEventListener('click', function() {
-                                jstree_node_create(tagName.toLowerCase());
-                            });
-                            element.classList.add("tag");
-                            $("#tagContainer").append(element);
-                        }
+function retrieveAndDisplayAllTags(apiToken) {
+    var client = new XMLHttpRequest();
+    client.open("GET", 'https://api.pinboard.in/v1/tags/get?format=json&auth_token=' + apiToken);
+    client.onload = function(e) {
+        if (client.status == 200) {
+            disableInputElements("Loading Tags from Pinboard");
+            $("#tagContainer").empty();
+            $('#searchFilter').off('input');
+            JSON.parse(client.responseText, (tagName, tagCount) =>
+            {
+                if (tagName != '') {
+                    var element = document.createElement('button');
+                    element.textContent = tagName.toLowerCase();
+                    element.addEventListener('click', function() {
+                        jstree_node_create(tagName.toLowerCase());
                     });
-                    applyTagListFilter();
-                    enableInputElements();
-                } else {
-                    logInvalidResponse('/tags/get', client);
+                    element.classList.add("tag");
+                    $("#tagContainer").append(element);
                 }
-            };
-            client.onerror = function(e) {
-                throw e;
-            };
-            client.send();
-        } else {
+            });
+            applyTagListFilter();
             enableInputElements();
+        } else {
+            logInvalidResponse('/tags/get', client);
         }
-    });
+    };
+    client.onerror = function(e) {
+        throw e;
+    };
+    client.send();
 }
 
 function loadSelectedTagsFromStorage() {
-    chrome.storage.sync.get('selected_tags', function(result) {
+    chrome.storage.local.get('selected_tags', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load selected tags from storage:\n\n" + chrome.runtime.lastError.message);
-        } else if (result != undefined && result.selected_tags != undefined) {
+            logError("Unable to load your previously selected tags from storage:\n\n" + chrome.runtime.lastError.message);
+        }
+        if (result != undefined && result.selected_tags != undefined) {
             generateTagTree(result.selected_tags);
         } else {
             generateTagTree([{"id":ROOT_NODE_ID, "text":"Pinboard", "icon":"images/root.gif"}]);
@@ -338,13 +330,12 @@ function jstree_node_delete() {
  GET/SET AND VERIFICATION FOR API TOKEN
 *****************************************/
 
-function loadApiTokenFromStorageAndVerify() {
+function validateApiTokenAndLoadTags() {
     chrome.storage.local.get('api_token', function(result) {
         if (chrome.runtime.lastError) {
             logError("Unable to retrieve API token from storage:\n\n" + chrome.runtime.lastError.message);
-            setApiTokenValidityIcon(false);
-            enableInputElements();
-        } else if (result != undefined && result.api_token != undefined) {
+        }
+        if (result != undefined && result.api_token != undefined) {
             $("#apiToken").val(result.api_token);
             verifyApiTokenAndLoadTags(result.api_token);
         } else {
@@ -362,10 +353,10 @@ function verifyApiTokenAndLoadTags(apiToken) {
         if (client.status == 200) {
             chrome.storage.local.set({'api_token': apiToken}, function() {
                 if (chrome.runtime.lastError) {
-                    logError("Unable to save API token to storage:\n\n" + chrome.runtime.lastError.message);
+                    logError("Unable to save API token to storage:\n\n" + chrome.runtime.lastError.message, false);
                 }
             });
-            retrieveAndDisplayAllTags();
+            retrieveAndDisplayAllTags(apiToken);
         } else {
             logInvalidResponse('/user/api_token', client, false);
         }
@@ -403,7 +394,7 @@ function logInvalidResponse(action, client, showPopup = true) {
 }
 
 function logError(message, showPopup = true) {
-    var errorMessage = 'An error has occurred: ' + message;
+    var errorMessage = 'An error has occurred:' + message;
     console.error(errorMessage);
     if (showPopup)
         alert(errorMessage);
@@ -429,9 +420,9 @@ window.onerror = function(messageOrEvent, sourceUrl, lineNo, columnNo, error) {
 function getAllPostsAndGenerateBookmarks() {
     chrome.storage.local.get('all_bookmarks_last_updated', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to get last full-bookmarks retrieval date from storage:\n\n" + chrome.runtime.lastError.message);
-            enableInputElements();
-        } else if (result != undefined
+            logError("Unable to determine last bookmarks retrieval date:\n\n" + chrome.runtime.lastError.message);
+        }
+        if (result != undefined
             && result.all_bookmarks_last_updated != undefined
             && ((new Date() - Date.parse(result.all_bookmarks_last_updated)) / 1000) < ALL_POSTS_REQUEST_LIMIT_IN_SEC) {
             getAllPostsFromLocalStorage();
@@ -445,8 +436,8 @@ function getAllPostsFromLocalStorage() {
     chrome.storage.local.get('all_bookmarks', function(result) {
         if (chrome.runtime.lastError) {
             logError("Unable to retrieve bookmarks from storage:\n\n" + chrome.runtime.lastError.message);
-            enableInputElements();
-        } else if (result != undefined && result.all_bookmarks != undefined) {
+        }
+        if (result != undefined && result.all_bookmarks != undefined) {
             generateBookmarks(result.all_bookmarks);
         } else {
             getAllPostsFromPinboard();
@@ -458,7 +449,6 @@ function getAllPostsFromPinboard() {
     chrome.storage.local.get('api_token', function(result) {
         if (chrome.runtime.lastError) {
             logError("Unable to retrieve API token from storage:\n\n" + chrome.runtime.lastError.message);
-            enableInputElements();
         } else if (result != undefined && result.api_token != undefined) {
             var client = new XMLHttpRequest();
             client.open("GET", 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=' + result.api_token);
@@ -478,12 +468,12 @@ function getAllPostsFromPinboard() {
                     });
                     chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()}, function() {
                         if (chrome.runtime.lastError) {
-                            logError("Unable to save last full-bookmarks retrieval date to storage:\n\n" + chrome.runtime.lastError.message);
+                            logError("Unable to save last full-bookmarks retrieval date to storage:\n\n" + chrome.runtime.lastError.message, false);
                         }
                     });
                     chrome.storage.local.set({'all_bookmarks': data}, function() {
                         if (chrome.runtime.lastError) {
-                            logError("Unable to save bookmarks to storage:\n\n" + chrome.runtime.lastError.message);
+                            logError("Unable to save bookmarks to storage:\n\n" + chrome.runtime.lastError.message, false);
                         }
                     });
                     generateBookmarks(data);
@@ -496,8 +486,7 @@ function getAllPostsFromPinboard() {
             };
             client.send();
         } else {
-            var message = 'API Token is missing.\n\nUnable to get bookmarks from Pinboard.';
-            logError(message);
+            logError('API token is missing.\n\nUnable to get bookmarks from Pinboard.');
         }
     });
 }
@@ -644,19 +633,16 @@ function subscribeEvents() {
 
     $("#generateBookmarks").on('click', function() {
         disableInputElements("Generating Bookmarks... this may take a minute");
-        chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
+        chrome.storage.local.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
             if (chrome.runtime.lastError) {
-                logError("Unable to save your selected tags to storage:\n\n" + chrome.runtime.lastError.message);
-                enableInputElements();
-            } else {
-                getAllPostsAndGenerateBookmarks();
+                logError("Unable to save your selected tags to storage:\n\n" + chrome.runtime.lastError.message, false);
             }
+            getAllPostsAndGenerateBookmarks();
         });
     });
 
     $("#saveTags").on('click', function() {
-        console.log(JSON.stringify($('#tagTree').jstree(true).get_json('#')));
-        chrome.storage.sync.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
+        chrome.storage.local.set({'selected_tags': $('#tagTree').jstree(true).get_json('#')}, function() {
             if (chrome.runtime.lastError) {
                 logError("Unable to save your selected tags to storage:\n\n" + chrome.runtime.lastError.message);
             }
@@ -682,34 +668,34 @@ function subscribeEvents() {
     });
 
     $("#create_folder_for_tag").on('click', function() {
-        chrome.storage.sync.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')}, function() {
+        chrome.storage.local.set({'create_folder_for_tag': $('#create_folder_for_tag').is(':checked')}, function() {
             if (chrome.runtime.lastError) {
-                logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                logError("Unable to save create_folder_for_tag option to storage:\n\n" + chrome.runtime.lastError.message, false);
             }
         });
     });
 
     $("#add_directly_to_bookmarks_bar").on('click', function() {
-        chrome.storage.sync.set({'add_directly_to_bookmarks_bar': $('#add_directly_to_bookmarks_bar').is(':checked')}, function() {
+        chrome.storage.local.set({'add_directly_to_bookmarks_bar': $('#add_directly_to_bookmarks_bar').is(':checked')}, function() {
             if (chrome.runtime.lastError) {
-                logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                logError("Unable to save add_directly_to_bookmarks_bar option to storage:\n\n" + chrome.runtime.lastError.message, false);
             }
         });
     });
 
     $("#confirm_before_deleting_folder").on('click', function() {
-        chrome.storage.sync.set({'confirm_before_deleting_folder': $('#confirm_before_deleting_folder').is(':checked')}, function() {
+        chrome.storage.local.set({'confirm_before_deleting_folder': $('#confirm_before_deleting_folder').is(':checked')}, function() {
             if (chrome.runtime.lastError) {
-                logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                logError("Unable to save confirm_before_deleting_folder option to storage:\n\n" + chrome.runtime.lastError.message, false);
             }
         });
     });
 
     $("#ignore_tag_delimiters").on('click', function() {
         var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
-        chrome.storage.sync.set({'ignore_tag_delimiters': ignoreDelimiters}, function() {
+        chrome.storage.local.set({'ignore_tag_delimiters': ignoreDelimiters}, function() {
             if (chrome.runtime.lastError) {
-                logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                logError("Unable to save ignore_tag_delimiters option to storage:\n\n" + chrome.runtime.lastError.message, false);
             }
         });
         $("#desired_and_operator").prop('disabled', ignoreDelimiters);
@@ -721,9 +707,9 @@ function subscribeEvents() {
     $("#desired_and_operator").on('input', function() {
         var userInput = $('#desired_and_operator').val();
         if (userInput.length == 1 && userInput != ' ' && userInput != ',') {
-            chrome.storage.sync.set({'desired_and_operator': userInput}, function() {
+            chrome.storage.local.set({'desired_and_operator': userInput}, function() {
                 if (chrome.runtime.lastError) {
-                    logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                    logError("Unable to save desired_and_operator option to storage:\n\n" + chrome.runtime.lastError.message, false);
                 }
             });
             tagLogicalAndDelimiter = userInput;
@@ -737,9 +723,9 @@ function subscribeEvents() {
     $("#desired_or_operator").on('input', function() {
         var userInput = $('#desired_or_operator').val();
         if (userInput.length == 1 && userInput != ' ' && userInput != ',') {
-            chrome.storage.sync.set({'desired_or_operator': userInput}, function() {
+            chrome.storage.local.set({'desired_or_operator': userInput}, function() {
                 if (chrome.runtime.lastError) {
-                    logError("Unable to save your option to storage:\n\n" + chrome.runtime.lastError.message);
+                    logError("Unable to save desired_or_operator option to storage:\n\n" + chrome.runtime.lastError.message, false);
                 }
             });
             tagLogicalOrDelimiter = userInput;
@@ -753,7 +739,6 @@ function subscribeEvents() {
     $("#deleteAllCache").on('click', function() {
         if (confirm('This will delete all stored data for this extension. Continue?')) {
             chrome.storage.local.clear();
-            chrome.storage.sync.clear();
             window.location.reload();
         }
     });
@@ -762,37 +747,37 @@ function subscribeEvents() {
 window.addEventListener('load', function load(event) {
     disableInputElements("Initializing");
     loadSelectedTagsFromStorage();
-    loadApiTokenFromStorageAndVerify();
+    validateApiTokenAndLoadTags();
     subscribeEvents();
 
-    chrome.storage.sync.get('create_folder_for_tag', function(result) {
+    chrome.storage.local.get('create_folder_for_tag', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load create_folder_for_tag option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         $('#create_folder_for_tag').attr('checked',
             result != undefined && result.create_folder_for_tag != undefined && result.create_folder_for_tag);
     });
 
-    chrome.storage.sync.get('add_directly_to_bookmarks_bar', function(result) {
+    chrome.storage.local.get('add_directly_to_bookmarks_bar', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load add_directly_to_bookmarks_bar option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         $('#add_directly_to_bookmarks_bar').attr('checked',
             result != undefined && result.add_directly_to_bookmarks_bar != undefined && result.add_directly_to_bookmarks_bar);
     });
 
-    chrome.storage.sync.get('confirm_before_deleting_folder', function(result) {
+    chrome.storage.local.get('confirm_before_deleting_folder', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load confirm_before_deleting_folder option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         var initializeSetting = (result == undefined || result.confirm_before_deleting_folder == undefined);
         $('#confirm_before_deleting_folder').attr('checked',
              initializeSetting ? true : result.confirm_before_deleting_folder);
     });
 
-    chrome.storage.sync.get('ignore_tag_delimiters', function(result) {
+    chrome.storage.local.get('ignore_tag_delimiters', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load ignore_tag_delimiters option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         var ignoreDelimiters = result != undefined && result.ignore_tag_delimiters != undefined && result.ignore_tag_delimiters;
         $('#ignore_tag_delimiters').attr('checked', ignoreDelimiters);
@@ -802,9 +787,9 @@ window.addEventListener('load', function load(event) {
         $("#desired_or_operator_label").css("color", ignoreDelimiters ? DISABLED_TEXT_COLOR : ENABLED_TEXT_COLOR);
     });
 
-    chrome.storage.sync.get('desired_and_operator', function(result) {
+    chrome.storage.local.get('desired_and_operator', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load desired_and_operator option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         if (result != undefined && result.desired_and_operator != undefined
             && result.desired_and_operator != "," && result.desired_and_operator != " ") {
@@ -815,9 +800,9 @@ window.addEventListener('load', function load(event) {
         $('#desired_and_operator').val(tagLogicalAndDelimiter);
     });
 
-    chrome.storage.sync.get('desired_or_operator', function(result) {
+    chrome.storage.local.get('desired_or_operator', function(result) {
         if (chrome.runtime.lastError) {
-            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message);
+            logError("Unable to load your option from storage:\n\n" + chrome.runtime.lastError.message, false);
         }
         if (result != undefined && result.desired_or_operator != undefined
             && result.desired_or_operator != "," && result.desired_or_operator != " ") {
