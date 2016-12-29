@@ -12,6 +12,8 @@ var DISABLED_TEXT_COLOR = "#666";
 
 var allBookmarks;
 
+var rootBookmarkIds;
+
 
 function disableInputElements(message) {
     ['#tagTree','#apiToken','#verifyApiToken','#generateBookmarks','#tagContainer','#searchFilter'].forEach(function(element) {
@@ -486,10 +488,15 @@ function generateBookmarks(allUrls) {
                 var topTagNode = getSelectedTagDataJson();
                 var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
 
+                rootBookmarkIds.forEach(function(oldBookmarkId) {
+                    chrome.bookmarks.removeTree(oldBookmarkId);
+                });
+                rootBookmarkIds.length = 0;
+
                 if ($('#add_directly_to_bookmarks_bar').is(':checked')) {
-                    createPageOrFolder(children[i].id, topTagNode[0]['children'], relevantUrls, ignoreDelimiters);
+                    createPageOrFolder(children[i].id, topTagNode[0]['children'], relevantUrls, ignoreDelimiters, true);
                 } else {
-                    createPageOrFolder(children[i].id, topTagNode, relevantUrls, ignoreDelimiters);
+                    createPageOrFolder(children[i].id, topTagNode, relevantUrls, ignoreDelimiters, true);
                 }
                 break;
             }
@@ -532,12 +539,15 @@ function filterBookmarksToSelectedTags(allUrls) {
     return relevantUrls;
 }
 
-function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters) {
+function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters, storeRootId = false) {
     tagNode.forEach(function(tag) {
         if (tag['type'] == 'default') {
             chrome.bookmarks.create({'parentId': parentNodeId,
                                      'title': tag['text']},
                                      function(newFolder) {
+                                         if (storeRootId) {
+                                             storeRootBookmarkId(newFolder.id);
+                                         }
                                          createPageOrFolder(newFolder.id, tag['children'], urls, ignoreDelimiters);
                                      });
         } else {
@@ -559,25 +569,45 @@ function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters) {
                     if (url['tags'].indexOf(tagNodeName.toLowerCase()) != -1) {
                         chrome.bookmarks.create({'parentId': parentNodeId,
                                                  'title': url['description'],
-                                                 'url': url['href']});
+                                                 'url': url['href']},
+                                                function(newBookmark) {
+                                                    if (storeRootId) {
+                                                        storeRootBookmarkId(newBookmark.id);
+                                                    }
+                                                });
                     }
                 } else if (comparison == "OR") {
                     if (tagNodeNames.some(x => url['tags'].indexOf(x.toLowerCase()) != -1)) {
                         chrome.bookmarks.create({'parentId': parentNodeId,
                                                  'title': url['description'],
-                                                 'url': url['href']});
+                                                 'url': url['href']},
+                                                function(newBookmark) {
+                                                    if (storeRootId) {
+                                                        storeRootBookmarkId(newBookmark.id);
+                                                    }
+                                                });
                     }
                 } else if (comparison == "AND") {  // comparison is AND
                     if (tagNodeNames.every(x => url['tags'].indexOf(x.toLowerCase()) != -1)) {
                         chrome.bookmarks.create({'parentId': parentNodeId,
                                                  'title': url['description'],
-                                                 'url': url['href']});
+                                                 'url': url['href']},
+                                                function(newBookmark) {
+                                                    if (storeRootId) {
+                                                        storeRootBookmarkId(newBookmark.id);
+                                                    }
+                                                });
                     }
                 }
             });
         }
     });
     enableInputElements();
+}
+
+function storeRootBookmarkId(rootBookmarkId) {
+     rootBookmarkIds.push(rootBookmarkId);
+     chrome.storage.local.set({'root_bookmark_ids': rootBookmarkIds});
 }
 
 
@@ -676,6 +706,14 @@ function subscribeEvents() {
         });
     });
 
+    $("#attempt_to_delete_previous_folder").on('click', function() {
+        chrome.storage.local.set({'attempt_to_delete_previous_folder': $('#attempt_to_delete_previous_folder').is(':checked')}, function() {
+            if (chrome.runtime.lastError) {
+                logError("Unable to save attempt_to_delete_previous_folder option to storage:\n\n" + chrome.runtime.lastError.message, false);
+            }
+        });
+    });
+
     $("#ignore_tag_delimiters").on('click', function() {
         var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
         chrome.storage.local.set({'ignore_tag_delimiters': ignoreDelimiters}, function() {
@@ -760,6 +798,14 @@ window.addEventListener('load', function load(event) {
              initializeSetting ? true : result.confirm_before_deleting_folder);
     });
 
+    chrome.storage.local.get('attempt_to_delete_previous_folder', function(result) {
+        if (chrome.runtime.lastError) {
+            logError("Unable to load attempt_to_delete_previous_folder option from storage:\n\n" + chrome.runtime.lastError.message, false);
+        }
+        $('#attempt_to_delete_previous_folder').attr('checked',
+            result != undefined && result.attempt_to_delete_previous_folder != undefined && result.attempt_to_delete_previous_folder);
+    });
+
     chrome.storage.local.get('ignore_tag_delimiters', function(result) {
         if (chrome.runtime.lastError) {
             logError("Unable to load ignore_tag_delimiters option from storage:\n\n" + chrome.runtime.lastError.message, false);
@@ -797,4 +843,18 @@ window.addEventListener('load', function load(event) {
         }
         $('#desired_or_operator').val(tagLogicalOrDelimiter);
     });
+
+    chrome.storage.local.get('root_bookmark_ids', function(result) {
+        if (chrome.runtime.lastError) {
+            logError("Unable to retrieve root_bookmark_ids from storage:\n\n" + chrome.runtime.lastError.message, false);
+        }
+
+        if (result != undefined && result.root_bookmark_ids != undefined) {
+            rootBookmarkIds = result.root_bookmark_ids;
+        } else {
+            rootBookmarkIds = [];
+        }
+    });
+
+
 });
