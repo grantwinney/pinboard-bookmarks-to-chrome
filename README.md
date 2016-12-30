@@ -48,7 +48,7 @@ Click on the gear icon in the upper-right corner to view the available options.
 
 * Desired OR operator<br>_Specify a parameter that can be used to pull in multiple tags. For instance, if you specify **|** to be the delimiter, and you add a tag to the treeview that's name "company|web", then that will generate bookmarks that have_ either _the company or web tag applied to them._
 
-* Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too.
+* Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
 # Warnings
 Storage... tags and bookmarks, sync and local
