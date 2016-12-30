@@ -50,10 +50,13 @@ Click on the gear icon in the upper-right corner to view the available options.
 
 * Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
-# Warnings
-Storage... tags and bookmarks, sync and local
+## Generating Bookmarks
+Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. That will look at your selected tags, taking any combinations of tags into account, and add the bookmarks with those tags into your Bookmarks Bar. Then Chrome can take over sync'ing them between multiple machines if that's your thing.
 
-I decided to allow a single folder to have multiple tags by using `+` for AND, and `|` for OR. Since Pinboard also allows you to use those symbols in your tag names, that could cause problems. It's what I needed though, and I don't use unusual symbols in my tag names, and I suggest you don't either.
+# Issues
+I use Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else.
+
+Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches the URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up.  
 
 # Resources
 There are several resources I used in developing this.
