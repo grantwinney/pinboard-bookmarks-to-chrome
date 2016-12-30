@@ -4,7 +4,7 @@ Using a bookmarking service like [Pinboard](https://pinboard.in) is convenient. 
 I wrote this extension because I wanted a way to generate bookmarks in [Chrome](https://www.google.com/chrome/browser/desktop/) using Pinboard's "tags".
 
 ## What This is _Not_
-This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via 'tag') into the Chrome browser.
+This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via tags) into the Chrome browser.
 
 # Getting the Extension
 Get it from the Chrome store.
