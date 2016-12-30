@@ -1,0 +1,23 @@
+a, a:visited {
+    color: blue;
+    text-decoration: none;
+    outline-width: none;
+}
+
+a:hover {
+    color: red;
+}
+
+.header {
+    text-align: center;
+    font-size: 18pt;
+    font-weight: bold;
+    text-align: center;
+}
+
+.icon {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    opacity: 0.2;
+}

@@ -767,12 +767,7 @@ function subscribeEvents() {
     });
 }
 
-window.addEventListener('load', function load(event) {
-    disableInputElements("Initializing");
-    loadSelectedTagsFromStorage();
-    validateApiTokenAndLoadTags();
-    subscribeEvents();
-
+function loadSettingsFromStorage() {
     chrome.storage.local.get('create_folder_for_tag', function(result) {
         if (chrome.runtime.lastError) {
             logError("Unable to load create_folder_for_tag option from storage:\n\n" + chrome.runtime.lastError.message, false);
@@ -855,6 +850,12 @@ window.addEventListener('load', function load(event) {
             rootBookmarkIds = [];
         }
     });
+}
 
-
+window.addEventListener('load', function load(event) {
+    disableInputElements("Initializing");
+    loadSettingsFromStorage();
+    loadSelectedTagsFromStorage();
+    validateApiTokenAndLoadTags();
+    subscribeEvents();
 });

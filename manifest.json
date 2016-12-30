@@ -7,11 +7,14 @@
     "description": "Import a set of bookmarks from the Pinboard bookmark service into the Chrome browser.",
     "version": "1.0.0.0",
 
-    "icons": {
-        "16": "images/pb-to-chr-16.png",
-        "32": "images/pb-to-chr-32.png",
-        "64": "images/pb-to-chr-64.png",
-        "128": "images/pb-to-chr-128.png"
+    "browser_action": {
+        "default_icon": {
+            "16": "images/pb-to-chr-16.png",
+            "32": "images/pb-to-chr-32.png",
+            "64": "images/pb-to-chr-64.png",
+            "128": "images/pb-to-chr-128.png"
+        },
+        "default_popup": "popup.html"
     },
 
     "update_url": "http://clients2.google.com/service/update2/crx",
