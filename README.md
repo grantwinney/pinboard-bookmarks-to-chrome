@@ -72,6 +72,9 @@ Don't be afraid to [reach out using social media](https://twitter.com/GrantWinne
 I used several libraries for various tasks in the extension. Here are the links if you want to check them out.
 
 * [He](https://github.com/mathiasbynens/he): _A robust HTML entity encoder/decoder written in JavaScript._
+
 * [jQuery](http://jquery.com/): _A fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works across a multitude of browsers._
+
 * [jQuery UI](https://jqueryui.com/): _A a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library._
+
 * [jsTree](https://www.jstree.com/): _A jQuery plugin, that provides interactive trees._
