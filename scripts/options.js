@@ -353,13 +353,14 @@ function verifyApiTokenAndLoadTags(apiToken) {
     var client = new XMLHttpRequest();
     client.open("GET", 'https://api.pinboard.in/v1/user/api_token?format=json&auth_token=' + apiToken);
     client.onload = function(e) {
+        $("#tagContainer").empty();
         setApiTokenValidityIcon(client.status == 200);
+        chrome.storage.local.set({'api_token': apiToken}, function() {
+            if (chrome.runtime.lastError) {
+                logError("Unable to save API token to storage:\n\n" + chrome.runtime.lastError.message, false);
+            }
+        });
         if (client.status == 200) {
-            chrome.storage.local.set({'api_token': apiToken}, function() {
-                if (chrome.runtime.lastError) {
-                    logError("Unable to save API token to storage:\n\n" + chrome.runtime.lastError.message, false);
-                }
-            });
             retrieveAndDisplayAllTags(apiToken);
         } else {
             logInvalidResponse('/user/api_token', client, false);
@@ -377,10 +378,10 @@ function verifyApiTokenAndLoadTags(apiToken) {
 function setApiTokenValidityIcon(isTokenValid) {
     var ind = document.getElementById('apiTokenStatusIndicator');
     if (isTokenValid) {
-        ind.src = 'images/check.png';
+        ind.src = 'images/api-token-valid.svg';
         ind.title = 'Valid Auth Token';
     } else {
-        ind.src = 'images/wrong.png';
+        ind.src = 'images/api-token-invalid.svg';
         ind.title = 'Invalid Auth Token';
     }
 }
@@ -407,7 +408,7 @@ function logError(message, showPopup = true) {
 window.onerror = function(messageOrEvent, sourceUrl, lineNo, columnNo, error) {
     var errorMessage = 'An error occurred on "' + sourceUrl + '[' + lineNo + ':' + columnNo + ']": ' + messageOrEvent;
     console.error(errorMessage);
-    if (error.stack != undefined) {
+    if (error != null && error.stack != undefined) {
         console.error('Stack trace: ' + error.stack);
     }
     alert(errorMessage);
