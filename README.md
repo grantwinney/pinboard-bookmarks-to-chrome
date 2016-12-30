@@ -16,7 +16,7 @@ This is only guaranteed to work in the latest version of Chrome. Since I'm alway
 # Using It
 When you open the extension for the first time, you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password).
 
-![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pinboard_api_token.png)
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pinboard_api_token_2.png)
 
 Until you supply a valid token, you'll see a red X and it'll complain that your "API token is missing. Unable to get bookmarks from Pinboard."
 
@@ -31,6 +31,7 @@ Select the tags you want to generate bookmarks for. When you click a tag on the 
 
 ## Options
 Click on the gear icon in the upper-right corner to view the available options.
+
 ![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/settings_menu.png)
 
 * Automatically create a parent folder for each tag?<br>_Each tag you add to the treeview is automatically placed inside a new folder of the same name._
