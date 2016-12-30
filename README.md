@@ -59,7 +59,7 @@ I use Chrome's built-in "local" storage for storing selected tags and other sett
 Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches the URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up.  
 
 # Resources
-There are several resources I used in developing this.
+Here's what helped me... maybe it'll help someone else too.
 
 ## Reference Material
 If you want to create your own Chrome extension, start with the [Chrome developer tutorials](https://developer.chrome.com/extensions). They explain the purpose of the manifest.json file, the various API endpoints and limitations, etc.
