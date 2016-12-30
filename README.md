@@ -1,20 +1,20 @@
 # Import Pinboard Bookmarks to Chrome
-Using a bookmarking service like [Pinboard](https://pinboard.in) is convenient. You always have what you need on-the-go, and you're not tied to a single browser. But for day-to-day use, it's tedious to open the bookmark site and search for a URL - potentially the same one over and over again if you need it frequently.
+Using a bookmarking service like [Pinboard](https://pinboard.in) is convenient. You always have what you need on-the-go, and you're not tied to a single browser. But for day-to-day use it's tedious to open the bookmark site and search for a URL, especially the most frequent ones over and over.
 
 I wrote this extension because I wanted a way to generate bookmarks in [Chrome](https://www.google.com/chrome/browser/desktop/) using Pinboard's "tags".
 
 ## What This is _Not_
-This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via tags) into the Chrome browser.
+This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via tags) into the Chrome browser's "Bookmarks Bar".
 
 # Getting the Extension
-Get it from the Chrome store.
+Preferably, get it from the Chrome store.
 
-You can also clone this repo to your machine and then load it in developer mode by [following these instructions](https://developer.chrome.com/extensions/getstarted#unpacked).
+Alternatively, clone this repo and then load it in developer mode by [following these instructions](https://developer.chrome.com/extensions/getstarted#unpacked). Useful for playing around.
 
-This is only guaranteed to work in the latest version of Chrome. Since I'm always on the latest, that's all I'm testing for... I really don't have time or resources to ensure it's backwards-compatible with version xx.
+This extension is only guaranteed to work in the latest version of Chrome. Since I'm always on the latest, that's all I'm testing for... I don't have time to ensure it's backwards-compatible with previous versions.
 
 # Using It
-When you open the extension for the first time, you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password).
+When you open the extension for the first time you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password), which is [how apps communicate with Pinboard](https://blog.pinboard.in/2012/07/api_authentication_tokens/).
 
 ![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pinboard_api_token_2.png)
 
@@ -22,12 +22,12 @@ Until you supply a valid token, you'll see a red X and it'll complain that your 
 
 ![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/enter_your_api_token_empty.png)
 
-[Find your API Token](https://pinboard.in/settings/password) and copy it into the box. Press the "refresh" button to validate it. If it's correct, you should see a green checkmark and then all your available tags should be loaded automatically.
+[Find your API Token](https://pinboard.in/settings/password) and copy it into the box. Press the "refresh" button to validate it. If it's correct, you'll see a green checkmark and then your available tags should load automatically.
 
 ![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/enter_your_api_token_valid_2.png)
 
 ## Selecting Tags
-Select the tags you want to generate bookmarks for. When you click a tag on the right, you'll see it appear in the treeview list on the left. Drag items around in the treeview to reorder them. Right-click on the treeview to create folders and perform other actions. Some actions won't always be available, like renaming a folder when you've right-clicked on a tag.
+Select the tags you want to generate bookmarks for. When you click a tag on the right, you'll see it appear in the treeview list on the left. Drag items around in the treeview to reorder them. Right-click on the treeview to create folders and perform other actions. _(Some actions won't always be available, like renaming a folder when you've right-clicked on a tag.)_
 
 ## Options
 Click on the gear icon in the upper-right corner to view the available options.
@@ -51,15 +51,20 @@ Click on the gear icon in the upper-right corner to view the available options.
 * Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
 ## Generating Bookmarks
-Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. That will look at your selected tags, taking any combinations of tags into account, and add the bookmarks with those tags into your Bookmarks Bar. Then Chrome can take over sync'ing them between multiple machines if that's your thing.
+Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar. From there, Chrome can take over sync'ing bookmarks between multiple machines if you're into that.
+
+# Need Help?
+If you have questions or a problem with using the extension, I'd prefer that you [create an issue](https://github.com/grantwinney/pinboard-bookmarks-to-chrome/issues/new).
+
+Include as many details as possible about what you were doing, what errors you got (if any), what you expected to happen and what actually did happen.
 
 # Issues
-I use Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else.
+I used Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else. So your selections won't sync between machines.
 
-Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches the URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up.  
+Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches your URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up. Best I could do for now.
 
 # Resources
-Here's what helped me... maybe it'll help someone else too.
+Here's some stuff that helped me... maybe it'll help you too.
 
 ## Reference Material
 If you want to create your own Chrome extension, start with the [Chrome developer tutorials](https://developer.chrome.com/extensions). They explain the purpose of the manifest.json file, the various API endpoints and limitations, etc.
@@ -78,3 +83,9 @@ I used several libraries for various tasks in the extension. Here are the links 
 * [jQuery UI](https://jqueryui.com/): _A a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library._
 
 * [jsTree](https://www.jstree.com/): _A jQuery plugin, that provides interactive trees._
+
+# Contact Me
+
+Feel free to [hit me up on Twitter](https://twitter.com/GrantWinney).
+
+Sometimes [I write about things](https://grantwinney.com/).
