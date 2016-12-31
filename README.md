@@ -29,6 +29,8 @@ Until you supply a valid token, you'll see a red X and it'll complain that your 
 ## Selecting Tags
 Select the tags you want to generate bookmarks for. When you click a tag on the right, you'll see it appear in the treeview list on the left. Drag items around in the treeview to reorder them. Right-click on the treeview to create folders and perform other actions. _(Some actions won't always be available, like renaming a folder when you've right-clicked on a tag.)_
 
+Also read about the "Desired AND operator" and "Desired OR operator" options directly below this.
+
 ## Options
 Click on the gear icon in the upper-right corner to view the available options.
 
