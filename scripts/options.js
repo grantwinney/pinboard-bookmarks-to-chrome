@@ -490,9 +490,11 @@ function generateBookmarks(allUrls) {
                 var topTagNode = getSelectedTagDataJson();
                 var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
 
-                rootBookmarkIds.forEach(function(oldBookmarkId) {
-                    chrome.bookmarks.removeTree(oldBookmarkId);
-                });
+                if ($("#attempt_to_delete_previous_folder").is(':checked')) {
+                    rootBookmarkIds.forEach(function(oldBookmarkId) {
+                        chrome.bookmarks.removeTree(oldBookmarkId);
+                    });
+                }
                 rootBookmarkIds.length = 0;
 
                 if ($('#add_directly_to_bookmarks_bar').is(':checked')) {
