@@ -58,7 +58,9 @@ If you have questions or a problem with using the extension, I'd prefer that you
 
 Include as many details as possible about what you were doing, what errors you got (if any), what you expected to happen and what actually did happen.
 
-# Issues
+In some cases, I had the extension pop up a message. Most of the time though, errors and other informational messages are simply logged to the console panel. That information could be very helpful in tracking down the source of a problem you're having. To see the console, press Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (Mac). [Read this for more info on the console panel](https://developers.google.com/web/tools/chrome-devtools/console/#open_as_panel).
+
+# Other Considerations
 I used Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else. So your selections won't sync between machines.
 
 Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches your URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up. Best I could do for now.
