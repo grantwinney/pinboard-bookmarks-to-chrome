@@ -344,6 +344,7 @@ function validateApiTokenAndLoadTags() {
             verifyApiTokenAndLoadTags(result.api_token);
         } else {
             setApiTokenValidityIcon(false);
+            $("#helpBox").show('drop', { direction: "right" }, 300);
             enableInputElements();
         }
     });
@@ -499,6 +500,7 @@ function generateBookmarks(allUrls) {
                 } else {
                     createPageOrFolder(children[i].id, topTagNode, relevantUrls, ignoreDelimiters, true);
                 }
+                enableInputElements();
                 break;
             }
         }
@@ -603,7 +605,6 @@ function createPageOrFolder(parentNodeId, tagNode, urls, ignoreDelimiters, store
             });
         }
     });
-    enableInputElements();
 }
 
 function storeRootBookmarkId(rootBookmarkId) {
