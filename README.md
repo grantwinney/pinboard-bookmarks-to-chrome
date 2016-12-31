@@ -29,6 +29,8 @@ Until you supply a valid token, you'll see a red X and it'll complain that your 
 ## Selecting Tags
 Select the tags you want to generate bookmarks for. When you click a tag on the right, you'll see it appear in the treeview list on the left. Drag items around in the treeview to reorder them. Right-click on the treeview to create folders and perform other actions. _(Some actions won't always be available, like renaming a folder when you've right-clicked on a tag.)_
 
+Also read about the "Desired AND operator" and "Desired OR operator" options directly below this.
+
 ## Options
 Click on the gear icon in the upper-right corner to view the available options.
 
@@ -51,14 +53,26 @@ Click on the gear icon in the upper-right corner to view the available options.
 * Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
 ## Generating Bookmarks
-Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar. From there, Chrome can take over sync'ing bookmarks between multiple machines if you're into that.
+Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar.
+
+Depending on the option you select, it'll either create a master folder and place all the generated bookmarks in it...
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/sync_bookmark_single_folder_b.png)
+
+... or it'll add them directly to the Bookmarks Bar.
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/sync_bookmark_direct_to_bookmark_bar_b.png)
+
+From there, Chrome can take over sync'ing bookmarks between multiple machines if you're into that.
 
 # Need Help?
 If you have questions or a problem with using the extension, I'd prefer that you [create an issue](https://github.com/grantwinney/pinboard-bookmarks-to-chrome/issues/new).
 
 Include as many details as possible about what you were doing, what errors you got (if any), what you expected to happen and what actually did happen.
 
-# Issues
+In some cases, I had the extension pop up a message. Most of the time though, errors and other informational messages are simply logged to the console panel. That information could be very helpful in tracking down the source of a problem you're having. To see the console, press Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (Mac). [Read this for more info on the console panel](https://developers.google.com/web/tools/chrome-devtools/console/#open_as_panel).
+
+# Other Considerations
 I used Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else. So your selections won't sync between machines.
 
 Pinboard places a couple restrictions on its API usage, one of which is that requests to get _all_ URLs can only be made once every 5 minutes. I did my best to honor this, so that the first click on "Generate Bookmarks" caches your URLs for 5 minutes. They're just stored in a variable though, so if you refresh (or close and reopen) the page and hit "Generate Bookmarks" again, it's going to hit Pinboard and pull down all the URLs again, regardless of whether the 5 minutes is up. Best I could do for now.
