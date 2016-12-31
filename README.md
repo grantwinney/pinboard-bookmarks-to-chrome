@@ -53,7 +53,17 @@ Click on the gear icon in the upper-right corner to view the available options.
 * Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
 ## Generating Bookmarks
-Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar. From there, Chrome can take over sync'ing bookmarks between multiple machines if you're into that.
+Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar.
+
+Depending on the option you select, it'll either create a master folder and place all the generated bookmarks in it...
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/sync_bookmark_single_folder_b.png)
+
+... or it'll add them directly to the Bookmarks Bar.
+
+![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/sync_bookmark_direct_to_bookmark_bar_b.png)
+
+From there, Chrome can take over sync'ing bookmarks between multiple machines if you're into that.
 
 # Need Help?
 If you have questions or a problem with using the extension, I'd prefer that you [create an issue](https://github.com/grantwinney/pinboard-bookmarks-to-chrome/issues/new).
