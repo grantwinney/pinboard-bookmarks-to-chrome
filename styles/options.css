@@ -29,6 +29,12 @@ a:hover {
     text-decoration: underline;
 }
 
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
 #create_button {
     color: #fff;
     background-color: #5cb85c;
@@ -132,7 +138,7 @@ a:hover {
     background-color: #D9EFFA;
     display: none;
     border: 1px solid #000;
-    padding: 0px 5px;
+    padding: 5px 10px;
 }
 
 #settingsBox {
@@ -142,12 +148,20 @@ a:hover {
     background-color: #eee;
     display: none;
     border: 1px solid #000;
-    padding: 0px 5px;
+    padding: 5px 10px;
 }
 
 #searchFilter {
     padding: 5px;
     margin: 0 0 15 0;
+}
+
+#desired_and_operator_label {
+    padding-left: 50px;
+}
+
+#desired_or_operator_label {
+    padding-left: 50px;
 }
 
 .disabledElement {
