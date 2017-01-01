@@ -27,7 +27,7 @@
                         <p id="apiPanel">Enter your <a href="https://pinboard.in/settings/password">API Token</a>:
                             <input id="apiToken" type="password">
                             <input id="verifyApiToken" type="image" src="images/refresh.svg" title="Verify Token">
-                            <img id="apiTokenStatusIndicator" src="images/wrong.png" width="16px" />
+                            <img id="apiTokenStatusIndicator" src="images/api-token-invalid.svg" width="16px" />
                         </p>
                         <p class="notice">
                             If you don't see your tags below, check your Internet connection,
@@ -111,7 +111,11 @@
             </p>
             <hr/>
             <p>
-                <button id="deleteAllCache">Delete Cache</button>
+                <button id="deleteSelectedTags">Delete Tags Only</button>
+                <em>&nbsp;( remove selected tags from the treeview )</em>
+            </p>
+            <p>
+                <button id="deleteAllCache">Delete All Cache</button>
                 <em>&nbsp;( nuke all of your selected tags and settings )</em>
             </p>
             <hr/>
