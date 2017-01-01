@@ -50,7 +50,9 @@ Click on the gear icon in the upper-right corner to view the available options.
 
 * Desired OR operator<br>_Specify a parameter that can be used to pull in multiple tags. For instance, if you specify **|** to be the delimiter, and you add a tag to the treeview that's name "company|web", then that will generate bookmarks that have_ either _the company or web tag applied to them._
 
-* Delete Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
+* Delete Tags Only<br>_Deletes the local storage for your selected tags, leaving other settings and your API Token alone._
+
+* Delete All Cache<br>_Deletes the local storage for this extension, wiping out any selected tags in the treeview on the left, as well as settings and your API Token. I found this useful during testing, but maybe someone else will find it useful too._
 
 ## Generating Bookmarks
 Once you've got the tags in the treeview the way you'd like, click the "Generate Bookmarks" button. It'll lookup bookmarks matching your selected tags and add them to your Bookmarks Bar.
