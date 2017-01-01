@@ -10,6 +10,7 @@
     "icons": {
         "16": "images/pb-to-chr-16.png",
         "32": "images/pb-to-chr-32.png",
+        "48": "images/pb-to-chr-48.png",
         "64": "images/pb-to-chr-64.png",
         "128": "images/pb-to-chr-128.png"
     },
