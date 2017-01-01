@@ -763,10 +763,30 @@ function subscribeEvents() {
         preventInvalidOperatorFromUser(event);
     });
 
+    $("#deleteSelectedTags").on('click', function() {
+        if (confirm('This will delete all selected tags in the treeview.\n\nContinue?')) {
+            chrome.storage.local.set({'selected_tags': [{"id":ROOT_NODE_ID, "text":"Pinboard", "icon":"images/root.gif"}]}, function() {
+                if (chrome.runtime.lastError) {
+                    logError("Unable to clear selected tags:\n\n" + chrome.runtime.lastError.message);
+                } else {
+                    // $('#tagTree').jstree(true).core.data = [{"id":ROOT_NODE_ID, "text":"Pinboard", "icon":"images/root.gif"}]
+                    // generateTagTree([{"id":ROOT_NODE_ID, "text":"Pinboard", "icon":"images/root.gif"}]);
+                    // $("#tagTree").load(location.href + " #tagTree>*", "");
+                    window.location.reload();
+                }
+            });
+        }
+    });
+
     $("#deleteAllCache").on('click', function() {
-        if (confirm('This will delete all stored data for this extension. Continue?')) {
-            chrome.storage.local.clear();
-            window.location.reload();
+        if (confirm('This will delete all stored data for this extension.\n\nContinue?')) {
+            chrome.storage.local.clear(function() {
+                if (chrome.runtime.lastError) {
+                    logError("Unable to clear local storage:\n\n" + chrome.runtime.lastError.message);
+                } else {
+                    window.location.reload();
+                }
+            });
         }
     });
 }
@@ -854,12 +874,13 @@ function loadSettingsFromStorage() {
             rootBookmarkIds = [];
         }
     });
+
+    loadSelectedTagsFromStorage();
 }
 
 window.addEventListener('load', function load(event) {
     disableInputElements("Initializing");
     loadSettingsFromStorage();
-    loadSelectedTagsFromStorage();
     validateApiTokenAndLoadTags();
     subscribeEvents();
 });
