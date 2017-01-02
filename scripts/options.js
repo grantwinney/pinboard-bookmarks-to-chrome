@@ -11,7 +11,6 @@ var ENABLED_TEXT_COLOR = "#000";
 var DISABLED_TEXT_COLOR = "#666";
 
 var allBookmarks;
-
 var rootBookmarkIds;
 
 
@@ -423,19 +422,50 @@ window.onerror = function(messageOrEvent, sourceUrl, lineNo, columnNo, error) {
 ****************************************************************/
 
 function getAllPostsAndGenerateBookmarks() {
-    chrome.storage.local.get('all_bookmarks_last_updated', function(result) {
-        if (chrome.runtime.lastError) {
-            logError("Unable to determine last bookmarks retrieval date:\n\n" + chrome.runtime.lastError.message);
-        }
-        if (result != undefined
-            && result.all_bookmarks_last_updated != undefined
-            && ((new Date() - Date.parse(result.all_bookmarks_last_updated)) / 1000) < ALL_POSTS_REQUEST_LIMIT_IN_SEC
-            && allBookmarks != undefined) {
-            generateBookmarks(allBookmarks);
-        } else {
-            getAllPostsFromPinboard();
-        }
-    });
+    if (allBookmarks == undefined) {
+        getAllPostsFromPinboard();
+    } else {
+        chrome.storage.local.get('local_bookmarks_last_updated', function(result) {
+            if (chrome.runtime.lastError) {
+                logError("Unable to determine last bookmarks retrieval date:\n\n" + chrome.runtime.lastError.message);
+            }
+            if (result == undefined || result.local_bookmarks_last_updated == undefined) {
+                getAllPostsFromPinboard();
+            } else {
+                var isTooSoonToGetAllPosts = ((Date.now() - result.local_bookmarks_last_updated) / 1000) < ALL_POSTS_REQUEST_LIMIT_IN_SEC;
+                if (isTooSoonToGetAllPosts) {
+                    generateBookmarks();
+                } else {
+                    chrome.storage.local.get('api_token', function(api_token_result) {
+                        if (chrome.runtime.lastError) {
+                            logError("Unable to retrieve API token from storage:\n\n" + chrome.runtime.lastError.message);
+                        } else if (api_token_result != undefined && api_token_result.api_token != undefined) {
+                            var client = new XMLHttpRequest();
+                            client.open("GET", 'https://api.pinboard.in/v1/posts/update?format=json&auth_token=' + api_token_result.api_token);
+                            client.onload = function(e) {
+                                if (client.status == 200) {
+                                    var lastRemoteUpdateTime = Date.parse(JSON.parse(client.responseText)['update_time']);
+                                    if (result.local_bookmarks_last_updated >= lastRemoteUpdateTime) {
+                                        generateBookmarks();
+                                    } else {
+                                        getAllPostsFromPinboard();
+                                    }
+                                } else {
+                                    logInvalidResponse('/posts/update', client);
+                                }
+                            };
+                            client.onerror = function(e) {
+                                throw e;
+                            };
+                            client.send();
+                        } else {
+                            logError('API token is missing.\n\nUnable to get bookmarks from Pinboard.');
+                        }
+                    });
+                }
+            }
+        });
+    }
 }
 
 function getAllPostsFromPinboard() {
@@ -460,12 +490,12 @@ function getAllPostsFromPinboard() {
                         data.push(o);
                     });
                     allBookmarks = data;
-                    chrome.storage.local.set({'all_bookmarks_last_updated': new Date().toString()}, function() {
+                    chrome.storage.local.set({'local_bookmarks_last_updated': Date.now()}, function() {
                         if (chrome.runtime.lastError) {
                             logError("Unable to save last full-bookmarks retrieval date to storage:\n\n" + chrome.runtime.lastError.message, false);
                         }
                     });
-                    generateBookmarks(data);
+                    generateBookmarks();
                 } else {
                     logInvalidResponse('/posts/all', client);
                 }
@@ -480,13 +510,13 @@ function getAllPostsFromPinboard() {
     });
 }
 
-function generateBookmarks(allUrls) {
+function generateBookmarks() {
     chrome.bookmarks.getChildren("0", function(children) {
         var isBarFound = false;
         for (var i = 0; i < children.length; i++) {
             if (children[i].title == 'Bookmarks Bar') {
                 isBarFound = true;
-                var relevantUrls = filterBookmarksToSelectedTags(allUrls);
+                var relevantUrls = filterBookmarksToSelectedTags();
                 var topTagNode = getSelectedTagDataJson();
                 var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
 
@@ -512,12 +542,12 @@ function generateBookmarks(allUrls) {
     });
 }
 
-function filterBookmarksToSelectedTags(allUrls) {
+function filterBookmarksToSelectedTags() {
     var distinctTagNames = getDistinctTagNames();
     var relevantUrls = [];
     var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
     distinctTagNames.forEach(function(tagName) {
-        allUrls.forEach(function(url) {
+        allBookmarks.forEach(function(url) {
             if (!ignoreDelimiters) {
                 if (tagName.indexOf(tagLogicalAndDelimiter) > -1) {
                     var tagNodeNames = tagName.split(tagLogicalAndDelimiter)
