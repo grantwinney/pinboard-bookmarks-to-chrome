@@ -15,7 +15,7 @@ Alternatively, clone this repo and then load it in developer mode by [following 
 This extension is only guaranteed to work in the latest version of Chrome. Since I'm always on the latest, that's all I'm testing for... I don't have time to ensure it's backwards-compatible with previous versions.
 
 # Using It
-When you open the extension for the first time you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password), which is [how apps communicate with Pinboard](https://blog.pinboard.in/2012/07/api_authentication_tokens/).
+When you open the extension for the first time you'll need to supply your [Pinboard API Token](https://pinboard.in/settings/password), which is [how third-party apps securely communicate with the Pinboard service](https://blog.pinboard.in/2012/07/api_authentication_tokens/) on your behalf.
 
 ![](https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pinboard_api_token_2.png)
 
