@@ -112,3 +112,4 @@ I used several libraries for various tasks in the extension. Here are the links 
 Feel free to [hit me up on Twitter](https://twitter.com/GrantWinney).
 
 Sometimes [I write about things](https://grantwinney.com/).
+
