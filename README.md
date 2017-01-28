@@ -8,7 +8,7 @@ I wrote this extension because I wanted a way to generate bookmarks in [Chrome](
 This is not a two-way 'sync'. Bookmarks that you create from within Chrome will not be pushed to Pinboard. It's only for retrieving bookmarks _from_ Pinboard (via tags) into the Chrome browser's "Bookmarks Bar".
 
 # Getting the Extension
-Preferably, get it from the Chrome store.
+Preferably, [get it from the Chrome store](https://chrome.google.com/webstore/detail/import-pinboard-bookmarks/ehmckciofpffmihhfjbblcebgmepcjdm).
 
 Alternatively, clone this repo and then load it in developer mode by [following these instructions](https://developer.chrome.com/extensions/getstarted#unpacked). Useful for playing around.
 
