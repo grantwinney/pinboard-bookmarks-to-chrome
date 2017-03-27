@@ -1,5 +1,7 @@
 # Import Pinboard Bookmarks to Chrome
+
 <img src="https://raw.githubusercontent.com/wiki/grantwinney/pinboard-bookmarks-to-chrome/images/pb-to-chr-128.png" align="right">
+
 Using a bookmarking service like [Pinboard](https://pinboard.in) is convenient. You always have what you need on-the-go, and you're not tied to a single browser. But for day-to-day use it's tedious to open the bookmark site and search for a URL, especially the most frequent ones over and over.
 
 I wrote this extension because I wanted a way to generate bookmarks in [Chrome](https://www.google.com/chrome/browser/desktop/) using Pinboard's "tags". You specify the tags (or combinations of tags) for which you want to generate bookmarks, and they'll be added to the Bookmarks Bar.
