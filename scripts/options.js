@@ -514,7 +514,7 @@ function generateBookmarks() {
     chrome.bookmarks.getChildren("0", function(children) {
         var isBarFound = false;
         for (var i = 0; i < children.length; i++) {
-            if (children[i].title == 'Bookmarks Bar') {
+            if (children[i].title.toUpperCase() === 'BOOKMARKS BAR') {
                 isBarFound = true;
                 var relevantUrls = filterBookmarksToSelectedTags();
                 var topTagNode = getSelectedTagDataJson();
