@@ -5,7 +5,7 @@
 
     "name": "Import Pinboard Bookmarks to Chrome",
     "description": "Import a set of bookmarks from the Pinboard bookmark service into the Chrome browser.",
-    "version": "1.0.0",
+    "version": "1.0.1",
 
     "icons": {
         "16": "images/pb-to-chr-16.png",
