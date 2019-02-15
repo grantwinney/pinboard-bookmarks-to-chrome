@@ -513,12 +513,15 @@ function getAllPostsFromPinboard() {
 function generateBookmarks() {
     chrome.bookmarks.getChildren("0", function(children) {
         var isBarFound = false;
-        for (var i = 0; i < children.length; i++) {
-            if (children[i].title.toUpperCase() === 'BOOKMARKS BAR') {
+        const bookmarkBarNames = ["LESEZEICHEN", "BOOKMARKS BAR"];
+
+        for (let i = 0; i < children.length; i++) {
+            let childTitleUppercase = children[i].title.toUpperCase();
+            if (bookmarkBarNames.includes(childTitleUppercase)) {
                 isBarFound = true;
-                var relevantUrls = filterBookmarksToSelectedTags();
-                var topTagNode = getSelectedTagDataJson();
-                var ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
+                const relevantUrls = filterBookmarksToSelectedTags();
+                const topTagNode = getSelectedTagDataJson();
+                const ignoreDelimiters = $('#ignore_tag_delimiters').is(':checked');
 
                 if ($("#attempt_to_delete_previous_folder").is(':checked')) {
                     rootBookmarkIds.forEach(function(oldBookmarkId) {
@@ -536,8 +539,8 @@ function generateBookmarks() {
                 break;
             }
         }
-        if (isBarFound == false) {
-            logError('Cannot add bookmarks. Unable to find the "Bookmarks Bar" in your browser.');
+        if (isBarFound === false) {
+            logError('Cannot add bookmarks. Unable to find any of the items ' + bookmarkBarNames + ' in your browser.');
         }
     });
 }
