@@ -77,6 +77,8 @@ Include as many details as possible about what you were doing, what errors you g
 
 In some cases, I had the extension pop up a message. Most of the time though, errors and other informational messages are simply logged to the console panel. That information could be very helpful in tracking down the source of a problem you're having. To see the console, press Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (Mac). [Read this for more info on the console panel](https://developers.google.com/web/tools/chrome-devtools/console/#open_as_panel).
 
+I stopped using Pinboard since the time I wrote this, so my personal interest in it is limited. If you have a fix or feature you'd like to implement, feel free to create a PR and I'll check it out.
+
 # Other Considerations
 I used Chrome's built-in "local" storage for storing selected tags and other settings. It's a 5MB bucket so it'll store plenty unless someone makes a truly massive tree of selected tags. I considered using Chrome's "sync" storage but there were too many restrictions and limitations, and it became more of a pain point than anything else. So your selections won't sync between machines.
 
@@ -92,11 +94,9 @@ This extension requests the following permissions:
 Here's some stuff that helped me... maybe it'll help you too.
 
 ## Reference Material
-If you want to create your own Chrome extension, start with the [Chrome developer tutorials](https://developer.chrome.com/extensions). They explain the purpose of the manifest.json file, the various API endpoints and limitations, etc.
+If you want to create your own Chrome extension, check out the [Chrome developer tutorials](https://developer.chrome.com/extensions) which  explain the purpose of the manifest.json file, the various API endpoints and limitations, etc. I wrote a tutorial on [creating your first Chrome extension](https://grantwinney.com/making-your-first-chrome-extension/) too.
 
-I also found the [Mozilla Developer Network (MDN) JavaScript docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript) to be a great resource.
-
-Don't be afraid to [reach out using social media](https://twitter.com/GrantWinney/status/798240234853068801). Someone may have just the info you're looking for.
+Also, the [Mozilla Developer Network (MDN) JavaScript docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript) are a great resource.
 
 ## Libraries
 I used several libraries for various tasks in the extension. Here are the links if you want to check them out.
@@ -110,7 +110,5 @@ I used several libraries for various tasks in the extension. Here are the links 
 * [jsTree](https://www.jstree.com/): _A jQuery plugin, that provides interactive trees._
 
 # Contact Me
-
-Feel free to [hit me up on Twitter](https://twitter.com/GrantWinney).
 
 Sometimes [I write about things](https://grantwinney.com/).
