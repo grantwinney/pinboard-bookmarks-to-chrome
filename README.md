@@ -111,4 +111,4 @@ I used several libraries for various tasks in the extension. Here are the links 
 
 # Contact Me
 
-Sometimes [I write about things](https://grantwinney.com/).
+Hit me up on [my blog](https://grantwinney.com/) or create an issue on GitHub.
